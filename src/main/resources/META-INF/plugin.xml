@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <idea-plugin>
-  <id>com.example.chatplugin</id>
+  <id>tangzeqi.com.chatplugin</id>
   <name>WChat</name>
   <version>1.0</version>
   <vendor email="1807788283@qq.com" url="https://www.cnblogs.com/tangzeqi">tangzeqi</vendor>
   <change-notes>Initial release</change-notes>
   <idea-version since-build="2020.1"/>
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.java</depends>
+  <description>
+    this is a chat plugin at IDE ,open with ctrl+1.
+  </description>
   <application-components>
     <component>
       <implementation-class>tangzeqi.com.plugin.ChatPlugin</implementation-class>
