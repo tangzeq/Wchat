@@ -1,0 +1,44 @@
+plugins {
+  id 'java'
+  id 'org.jetbrains.intellij' version '0.7.3'  // IntelliJ 官方插件依赖
+}
+group 'tangzeqi.com'
+version '1.0-SNAPSHOT'
+
+
+repositories {
+  mavenCentral()
+    maven { url 'http://maven.aliyun.com/nexus/content/repositories/google' }
+    maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
+    maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+}
+
+// Configure Gradle IntelliJ Plugin
+// Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
+intellij {
+  version = '2020.1'  // 指定兼容的 IDEA 版本
+  type = 'IC'           // 社区版（商业版用 'IU'）
+  plugins = ['java']    // 依赖插件（如 Spring/Kotlin 按需添加）
+}
+
+dependencies {
+  implementation 'io.netty:netty-all:4.1.68.Final'
+  compileOnly 'io.netty:netty-all:4.1.68.Final'
+  annotationProcessor 'io.netty:netty-all:4.1.68.Final'
+  implementation 'org.projectlombok:lombok:1.18.30'
+  compileOnly 'org.projectlombok:lombok:1.18.30'
+  annotationProcessor 'org.projectlombok:lombok:1.18.30'
+  implementation 'com.alibaba:fastjson:1.2.71'
+  compileOnly 'com.alibaba:fastjson:1.2.71'
+  annotationProcessor 'com.alibaba:fastjson:1.2.71'
+}
+compileJava {
+  options.encoding = 'UTF-8'
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
+}
+
+patchPluginXml {
+//  sinceBuild = '2020.1.*'
+  untilBuild = '2023.3.*'
+}

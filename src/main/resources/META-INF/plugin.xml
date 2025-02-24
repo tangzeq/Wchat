@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin>
+  <id>com.example.chatplugin</id>
+  <name>WChat</name>
+  <version>1.0</version>
+  <vendor email="1807788283@qq.com" url="https://www.cnblogs.com/tangzeqi">tangzeqi</vendor>
+  <change-notes>Initial release</change-notes>
+  <idea-version since-build="2020.1"/>
+  <application-components>
+    <component>
+      <implementation-class>tangzeqi.com.plugin.ChatPlugin</implementation-class>
+    </component>
+  </application-components>
+  <actions>
+    <action id="tangzeqi.com.panel.ShowChat" class="tangzeqi.com.action.ShowChatAction" text="Show Chat">
+      <keyboard-shortcut first-keystroke="ctrl 1" keymap="$default"/>
+    </action>
+  </actions>
+</idea-plugin>
