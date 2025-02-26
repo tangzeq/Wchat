@@ -15,6 +15,10 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChatPanel extends JPanel {
     private final JBTextField serverIp;
@@ -174,6 +178,20 @@ public class ChatPanel extends JPanel {
         messageArea.setFont(UIUtil.getLabelFont());
         messageArea.setLineWrap(true);
         messageArea.setWrapStyleWord(true);
+        messageArea.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                mouseClick(e,messageArea);
+            }
+            @Override
+            public void mousePressed(MouseEvent e) {}
+            @Override
+            public void mouseReleased(MouseEvent e) {}
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+            @Override
+            public void mouseExited(MouseEvent e) {}
+        });
         resetGBC(gbc);
         gbc.insets = new Insets(0, 0, 0, 0);
         gbc.gridy = 0;
@@ -195,6 +213,25 @@ public class ChatPanel extends JPanel {
         chat.add(inputField, gbc);
         addMessage("欢迎来到聊天插件!", "系统");
         return chat;
+    }
+
+    private void mouseClick(MouseEvent e,JTextArea area) {
+        int i = area.viewToModel(new Point(e.getX(), e.getY()));
+        String regex = "\\[(.+?)\\]\\s(.+\\..+)\\:(\\d+)（点击跳转）\\n";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(area.getText());
+        String file;
+        int line;
+        while (matcher.find()) {
+            int start = matcher.start();
+            int end = matcher.end();
+            if(start<=i && end >=i) {
+                file = matcher.group(2);
+                line = Integer.parseInt(matcher.group(3));
+                ChatService.openFileLine(file,line);
+                break;
+            }
+        }
     }
 
     private JGridBagPanel sysPanel() {
@@ -321,4 +358,11 @@ public class ChatPanel extends JPanel {
             }
         };
     }
+
+    public void inputFieldPost(String str) {
+        inputField.setText(str);
+        inputField.postActionEvent();
+        inputField.setText("");
+    }
+
 }

@@ -1,9 +1,16 @@
 package tangzeqi.com.service;
 
 import com.intellij.execution.TaskExecutor;
+import com.intellij.openapi.editor.CaretModel;
+import com.intellij.openapi.editor.LogicalPosition;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.newvfs.impl.VirtualFileImpl;
+import com.intellij.psi.PsiManager;
 import io.netty.bootstrap.Bootstrap;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.ObjectUtils;
+import tangzeqi.com.action.ShowChatAction;
 import tangzeqi.com.panel.ChatPanel;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -119,5 +126,20 @@ public class ChatService {
         if (ObjectUtils.isNotEmpty(chat)) {
             chat.addMessage(m, root);
         }
+    }
+
+    public static void openFileLine(String file,int line) {
+        VirtualFile virtualFile = ShowChatAction.project.getBaseDir().findFileByRelativePath(file);
+        FileEditorManager manager = FileEditorManager.getInstance(ShowChatAction.project);
+        manager.openFile(virtualFile,true);
+        CaretModel caretModel = manager.getSelectedTextEditor().getCaretModel();
+        caretModel.moveToLogicalPosition(new LogicalPosition(line,0));
+        caretModel.moveCaretRelatively(0,-1,false,true,true);
+        caretModel.moveCaretRelatively(1,0,false,true,true);
+        caretModel.moveCaretRelatively(-1,0,false,true,true);
+    }
+
+    public static void sendChat(String message) {
+        chat.inputFieldPost(message);
     }
 }

@@ -9,7 +9,8 @@
   <depends>com.intellij.modules.platform</depends>
   <depends>com.intellij.modules.java</depends>
   <description>
-    this is a chat plugin at IDE ,open with ctrl+1.
+    1、This is a chat plugin at IDE ,Open with ctrl+1.
+    2、Right-click to send anchor points to chat.
   </description>
   <application-components>
     <component>
@@ -19,6 +20,9 @@
   <actions>
     <action id="tangzeqi.com.panel.ShowChat" class="tangzeqi.com.action.ShowChatAction" text="Show Chat">
       <keyboard-shortcut first-keystroke="ctrl 1" keymap="$default"/>
+    </action>
+    <action id="tangzeqi.com.action.CodeLineToChat" class="tangzeqi.com.action.CodeLineToChat" text="发送到Wchat">
+      <add-to-group group-id="EditorPopupMenu" anchor="first"></add-to-group>
     </action>
   </actions>
 </idea-plugin>

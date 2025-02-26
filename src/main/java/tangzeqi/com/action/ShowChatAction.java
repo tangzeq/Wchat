@@ -2,6 +2,7 @@ package tangzeqi.com.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.RegisterToolWindowTask;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -11,9 +12,16 @@ import tangzeqi.com.plugin.ChatPlugin;
 
 public class ShowChatAction extends AnAction {
 
+    public static volatile Project project;
+
     @Override
     public void actionPerformed(AnActionEvent e) {
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(e.getProject());
+        project = e.getProject();
+        openChat();
+    }
+
+    public static void openChat() {
+        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
         ToolWindow chat = toolWindowManager.getToolWindow("Chat");
         if (ObjectUtils.isNotEmpty(chat)) chat.show();
         else
