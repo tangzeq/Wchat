@@ -252,7 +252,7 @@ public class ChatPanel extends JPanel {
 
     private void sendMessage(ActionEvent e) {
         String message = inputField.getText().trim();
-        if(ObjectUtils.isEmpty(ChatService.userName)) {
+        if(!ChatService.connect) {
             ChatService.sysMessage("未加入聊天室");
         }
         else if (!message.isEmpty()) {

@@ -8,15 +8,20 @@
   <idea-version since-build="2020.1"/>
   <depends>com.intellij.modules.platform</depends>
   <depends>com.intellij.modules.java</depends>
-  <description>
-    1、This is a chat plugin at IDE ,Open with ctrl+1.
-    2、Right-click to send anchor points to chat.
-  </description>
+  <description><![CDATA[
+        <h2><a href="https://github.com/tangzeq/Wchat">GitHub</a>   <a href="https://www.cnblogs.com/tangzeqi">博客园</a></h2>
+        <h1>Informations</h1><br>
+        <em>1. This is a chat plugin integrated within the Integrated Development Environment (IDE), accessible via the shortcut Ctrl+1.</em><br>
+        <em>2. Right-click to transmit anchor points to the chat interface.</em><br>
+    ]]></description>
   <application-components>
     <component>
       <implementation-class>tangzeqi.com.plugin.ChatPlugin</implementation-class>
     </component>
   </application-components>
+  <applicationListeners>
+    <listener class="tangzeqi.com.listener.IDEcloseListener" topic="com.intellij.ide.AppLifecycleListener"></listener>
+  </applicationListeners>
   <actions>
     <action id="tangzeqi.com.panel.ShowChat" class="tangzeqi.com.action.ShowChatAction" text="Show Chat">
       <keyboard-shortcut first-keystroke="ctrl 1" keymap="$default"/>

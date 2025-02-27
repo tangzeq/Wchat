@@ -1,6 +1,7 @@
 package tangzeqi.com.service;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
@@ -10,6 +11,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -21,23 +24,25 @@ import static tangzeqi.com.service.ChatService.*;
  * 作者：唐泽齐
  */
 public class NettyCustomer {
-    private NioEventLoopGroup message = new NioEventLoopGroup();
-    private boolean open = false;
+    private volatile NioEventLoopGroup message = new NioEventLoopGroup();
+    private volatile Channel channel;
+    private volatile boolean open = false;
 
     public void makerCustomer(String inetHost, int port, CustomerHandler customerHandler) throws Throwable {
         customerHandler.makeonLine();
-        if (open) {
-            sysMessage("客户端更新连接至 " + inetHost + ":" + port);
-            final Collection<ChannelHandlerContext> remotes = customerHandler.remotes();
-            customerBoot.connect(inetHost, port);
-            for (ChannelHandlerContext remote : remotes) remote.close();
-            connectStatus(true);
-            return;
-        }
         try {
+            if (open) {
+                final Collection<ChannelHandlerContext> remotes = customerHandler.remotes();
+                for (ChannelHandlerContext remote : remotes) remote.close();
+                sysMessage("客户端更新连接至 " + inetHost + ":" + port);
+                connectStatus(true);
+                channel = customerBoot.connect(inetHost, port).channel();
+                channel.closeFuture().sync();
+                return;
+            }
             open = true;
-            if (customerBoot == null) customerBoot = new Bootstrap();
-            ChannelFuture channelFuture = customerBoot
+            if(ObjectUtils.isEmpty(customerBoot)) customerBoot = new Bootstrap();
+            channel = customerBoot
                     .group(message)
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {
@@ -49,28 +54,30 @@ public class NettyCustomer {
                             ch.pipeline().addLast(customerHandler);
                         }
                     })
-                    .connect(inetHost, port).sync();
+                    .connect(inetHost, port).sync().channel();
             sysMessage("已接入聊天室"+" IP " + inetHost + ", 端口号 " + port);
             connectStatus(true);
-            channelFuture.channel().closeFuture().sync();
+            channel.closeFuture().sync();
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             e.printStackTrace();
         } finally {
-            try {
-                message.shutdownGracefully().sync();
-                connectStatus(false);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                connectStatus(false);
-            }
+//            message.shutdownGracefully().sync();
+            connectStatus(false);
         }
     }
 
-     public void shutDown() {
+     public void out() {
+        final Collection<ChannelHandlerContext> remotes = customerHandler.remotes();
+        for (ChannelHandlerContext remote : remotes){
+            remote.close();
+        }
+    }
+
+    public void shutDown() {
         try {
             message.shutdownGracefully().sync();
-            connectStatus(false);
-        } catch (InterruptedException e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }

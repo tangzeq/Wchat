@@ -46,6 +46,7 @@ public class ChatService {
      */
     public static void start() {
         if (!start) {
+            sysMessage("正在启动聊天室");
             executor.execute(() -> {
                 try {
                     server.makeServer(serverIp, new AtomicInteger(Integer.parseInt(serverPort)), serverHandler);
@@ -56,7 +57,8 @@ public class ChatService {
                 }
             });
         } else {
-            executor.execute(()->server.shutDown());
+            sysMessage("正在关闭聊天室");
+            executor.execute(()->server.out());
         }
     }
 
@@ -78,6 +80,7 @@ public class ChatService {
      */
     public static void connect() {
         if (!connect) {
+            sysMessage("正在加入聊天室");
             executor.execute(()-> {
                 try {
                     customer.makerCustomer(connectIp,Integer.parseInt(connectPort),customerHandler);
@@ -88,7 +91,8 @@ public class ChatService {
                 }
             });
         } else {
-            executor.execute(()->customer.shutDown());
+            sysMessage("正在退出聊天室");
+            executor.execute(()->customer.out());
         }
     }
 
@@ -137,6 +141,11 @@ public class ChatService {
         caretModel.moveCaretRelatively(0,-1,false,true,true);
         caretModel.moveCaretRelatively(1,0,false,true,true);
         caretModel.moveCaretRelatively(-1,0,false,true,true);
+    }
+
+    public static void shutDown() {
+        server.shutDown();
+        customer.shutDown();
     }
 
     public static void sendChat(String message) {

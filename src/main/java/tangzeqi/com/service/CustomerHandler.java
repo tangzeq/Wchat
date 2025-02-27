@@ -155,7 +155,7 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
         String hostString = remoteHost(ctx);
         int portString = remotePort(ctx);
 //        sysMessage(ctx.channel().id() + "从" + hostString + ":" + portString + "断开");
-        sysMessage(  "从" + hostString + ":" + portString + "断开");
+//        sysMessage(  "从" + hostString + ":" + portString + "断开");
         remoteCache.remove(ctx.channel().id().toString(), ctx);
         boolean single = true;
         for (ChannelHandlerContext context : remoteCache.values()) {
@@ -212,11 +212,11 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
                     while (true) {
                         try {
                             Thread.sleep(50);
-                        } catch (InterruptedException e) {
+                            for (ChannelHandlerContext context : remoteCache.values()) {
+                                context.writeAndFlush(Unpooled.copiedBuffer((System.getProperty("line.separator")).getBytes("UTF-8")));
+                            }
+                        } catch (Throwable e) {
                             e.printStackTrace();
-                        }
-                        for (ChannelHandlerContext context : remoteCache.values()) {
-                            context.writeAndFlush(Unpooled.copiedBuffer((System.getProperty("line.separator")).getBytes("UTF-8")));
                         }
                     }
                 }
