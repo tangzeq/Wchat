@@ -11,6 +11,7 @@ public class IDEcloseListener implements AppLifecycleListener, ApplicationCompon
     public void appWillBeClosed(boolean isRestart) {
         // 处理关闭事件
         System.out.println("Wchat is shutDowning...");
+        Thread.currentThread().interrupt();
         ChatService.shutDown();
         System.out.println("Wchat is shutDowned");
     }

@@ -76,7 +76,8 @@ public class NettyCustomer {
 
     public void shutDown() {
         try {
-            message.shutdownGracefully().sync();
+//            message.shutdownGracefully().sync();
+            message.shutdownGracefully();
         } catch (Throwable e) {
             e.printStackTrace();
         }

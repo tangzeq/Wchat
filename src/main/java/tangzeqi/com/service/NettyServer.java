@@ -89,8 +89,10 @@ public class NettyServer {
 
     public void shutDown() {
         try {
-            accpt.shutdownGracefully().sync();
-            message.shutdownGracefully().sync();
+//            accpt.shutdownGracefully().sync();
+//            message.shutdownGracefully().sync();
+            accpt.shutdownGracefully();
+            message.shutdownGracefully();
         } catch (Throwable e) {
             e.printStackTrace();
         }
