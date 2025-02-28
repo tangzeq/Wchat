@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.NetworkInterface;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -41,17 +42,27 @@ public class NetUtils {
     }
 
     public static int port() {
-        int port = 1024;
-        ChatService.sysMessage("自动检索可用端口");
-        for (; port <= 65535; port++) {
-            try {
-                MulticastSocket ignored = new MulticastSocket(port);
-                ignored.close();
-                ChatService.sysMessage("端口 " + port + " 可用");
-                break;
-            } catch (IOException ignored) {
-                ChatService.sysMessage("端口 " + port + " 已被占用");
-            }
+        int port = 0;
+        ServerSocket socket;
+//        ChatService.sysMessage("自动检索可用端口");
+//        for (; port <= 65535; port++) {
+//            try {
+//                ServerSocket socket = new ServerSocket(port);
+//                socket.close();
+//                ChatService.sysMessage("端口 " + port + " 可用");
+//                break;
+//            } catch (IOException ignored) {
+//                ChatService.sysMessage("端口 " + port + " 已被占用");
+//            }
+//        }
+        try {
+            socket = new ServerSocket(port);
+            port = socket.getLocalPort();
+            socket.close();
+            ChatService.sysMessage("端口 " + port + " 可用");
+        } catch (IOException e) {
+            ChatService.sysMessage("无可用端口号");
+            e.printStackTrace();
         }
         return port;
     }
@@ -59,8 +70,8 @@ public class NetUtils {
     public static Boolean port(int port) {
         ChatService.sysMessage("检查端口是否可用");
             try {
-                MulticastSocket ignored = new MulticastSocket(port);
-                ignored.close();
+                ServerSocket socket = new ServerSocket(port);
+                socket.close();
                 ChatService.sysMessage("端口 " + port + " 可用");
             } catch (IOException ignored) {
                 ChatService.sysMessage("端口 " + port + " 已被占用");

@@ -38,17 +38,19 @@ public class ChatPanel extends JPanel {
 
     public ChatPanel() {
         super(new GridBagLayout());
+        String host = NetUtils.host();
+        String port = String.valueOf(NetUtils.port());
         gbc = new GridBagConstraints();
         serverIp = new JBTextField(15);
-        serverIp.setText(NetUtils.host());
+        serverIp.setText(host);
         serverPort = new JBTextField(5);
-        serverPort.setText(NetUtils.port()+"");
+        serverPort.setText(port);
         userName = new JBTextField(20);
         userName.setText("神秘用户");
         connectIp = new JBTextField(15);
-        connectIp.setText(NetUtils.host());
+        connectIp.setText(host);
         connectPort = new JBTextField(5);
-        connectPort.setText(NetUtils.port()+"");
+        connectPort.setText(port);
         inputField = new JBTextField();
         messageArea = new JTextArea();
         userArea = new JTextArea();

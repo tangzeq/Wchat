@@ -14,10 +14,10 @@ public class CodeLineToChat extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent an) {
         project = an.getProject();
-        if(ObjectUtils.isEmpty(ShowChatAction.project)) {
+        if(ObjectUtils.isEmpty(ShowChatAction.project) || ObjectUtils.isEmpty(ChatService.chat)) {
             ShowChatAction.project = project;
             ShowChatAction.openChat();
-        }
+        } else ShowChatAction.openChat();
         FileEditorManager manager = FileEditorManager.getInstance(an.getProject());
         String path = manager.getSelectedEditor().getFile().getPath();
         String base = project.getBaseDir().getPath();

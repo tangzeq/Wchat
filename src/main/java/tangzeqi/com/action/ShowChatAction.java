@@ -26,6 +26,7 @@ public class ShowChatAction extends AnAction {
         if (ObjectUtils.isNotEmpty(chat)) chat.show();
         else
             toolWindowManager.registerToolWindow(RegisterToolWindowTask.lazyAndClosable("Chat", ChatPlugin.getInstance(), IconUtil.getEditIcon()));
-
+        chat = toolWindowManager.getToolWindow("Chat");
+        if (ObjectUtils.isNotEmpty(chat)) chat.show();
     }
 }

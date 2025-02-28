@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ChatService {
-    public static boolean start = false;
-    public static boolean connect = false;
+    public static boolean start;
+    public static boolean connect;
     public static ChatPanel chat;
     public static String serverIp;
     public static String serverPort;
@@ -51,6 +51,7 @@ public class ChatService {
                 try {
                     server.makeServer(serverIp, new AtomicInteger(Integer.parseInt(serverPort)), serverHandler);
                 } catch (Throwable throwable) {
+                    ChatService.start = true;
                     throwable.printStackTrace();
                     sysMessage("启动失败");
                     startStatus(false);
@@ -85,6 +86,7 @@ public class ChatService {
                 try {
                     customer.makerCustomer(connectIp,Integer.parseInt(connectPort),customerHandler);
                 } catch (Throwable e) {
+                    ChatService.connect = true;
                     sysMessage("连接失败");
                     connectStatus(false);
                     e.printStackTrace();
