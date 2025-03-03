@@ -59,6 +59,9 @@ public class NettyCustomer {
             connectStatus(true);
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
+            open = false;
+            customerBoot = new Bootstrap();
+            connectStatus(false);
             Thread.currentThread().interrupt();
             e.printStackTrace();
         } finally {
@@ -68,9 +71,13 @@ public class NettyCustomer {
     }
 
      public void out() {
-        final Collection<ChannelHandlerContext> remotes = customerHandler.remotes();
-        for (ChannelHandlerContext remote : remotes){
-            remote.close();
+        try {
+            final Collection<ChannelHandlerContext> remotes = customerHandler.remotes();
+            for (ChannelHandlerContext remote : remotes){
+                remote.close();
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 
