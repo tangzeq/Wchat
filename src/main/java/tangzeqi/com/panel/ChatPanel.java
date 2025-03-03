@@ -6,6 +6,7 @@ import com.intellij.util.ui.UIUtil;
 import org.apache.batik.ext.swing.JGridBagPanel;
 import org.apache.commons.lang3.ObjectUtils;
 import tangzeqi.com.service.ChatService;
+import tangzeqi.com.service.MqttService;
 import tangzeqi.com.stroge.TextMessage;
 import tangzeqi.com.utils.NetUtils;
 
@@ -21,6 +22,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ChatPanel extends JPanel {
+
+    private final JButton mqtt;
+    private final JBTextField mqttroom;
     private final JBTextField serverIp;
     private final JBTextField serverPort;
     private final JButton button;
@@ -56,6 +60,9 @@ public class ChatPanel extends JPanel {
         userArea = new JTextArea();
         button = new JButton("创建聊天室");
         connect = new JButton("加入聊天室");
+        mqttroom = new JBTextField(20);
+        mqttroom.setText("88283");
+        mqtt = new JButton("开启公网聊天");
         ///////////////////系统窗口////////////////////
         JGridBagPanel sys = sysPanel();
         resetGBC(gbc);
@@ -103,13 +110,33 @@ public class ChatPanel extends JPanel {
 
     private JGridBagPanel configPanel() {
         JGridBagPanel config = new JGridBagPanel();
+        //MQTT频道编号
+        mqttroom.setEditable(true);
+        mqttroom.setToolTipText("公网频道编号");
+        mqttroom.getDocument().addDocumentListener(limit(mqttroom,20));
+        resetGBC(gbc);
+        gbc.anchor = GridBagConstraints.SOUTH;
+        gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.weightx = 2.0;
+        config.add(mqttroom,gbc);
+        //MQTT启动
+        mqtt.addActionListener(this::mqttStart);
+        resetGBC(gbc);
+        gbc.anchor = GridBagConstraints.SOUTH;
+        gbc.gridy = 1;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.weightx = 2.0;
+        config.add(mqtt,gbc);
         //系统行
         serverIp.setEditable(true);
         serverIp.setToolTipText("本地服务IP地址");
         serverIp.getDocument().addDocumentListener(limit(serverIp, 100));
         resetGBC(gbc);
         gbc.anchor = GridBagConstraints.SOUTH;
-        gbc.gridy = 0;
+        gbc.gridy = 2;
         gbc.gridx = 0;
         gbc.weightx = 1.5;
         config.add(serverIp,gbc);
@@ -118,6 +145,7 @@ public class ChatPanel extends JPanel {
         serverPort.getDocument().addDocumentListener(limit(serverPort, 10));
         resetGBC(gbc);
         gbc.anchor = GridBagConstraints.SOUTH;
+        gbc.gridy = 2;
         gbc.gridx = 1;
         gbc.weightx = 0.5;
         config.add(serverPort,gbc);
@@ -125,7 +153,7 @@ public class ChatPanel extends JPanel {
         button.addActionListener(this::serverStart);
         resetGBC(gbc);
         gbc.anchor = GridBagConstraints.SOUTH;
-        gbc.gridy = 1;
+        gbc.gridy = 3;
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         gbc.weightx = 2.0;
@@ -136,7 +164,7 @@ public class ChatPanel extends JPanel {
         userName.getDocument().addDocumentListener(limit(userName,100));
         resetGBC(gbc);
         gbc.anchor = GridBagConstraints.SOUTH;
-        gbc.gridy = 2;
+        gbc.gridy = 4;
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         gbc.weightx = 2.0;
@@ -147,7 +175,7 @@ public class ChatPanel extends JPanel {
         connectIp.getDocument().addDocumentListener(limit(connectIp, 100));
         resetGBC(gbc);
         gbc.anchor = GridBagConstraints.SOUTH;
-        gbc.gridy = 3;
+        gbc.gridy = 5;
         gbc.gridx = 0;
         gbc.gridwidth = 1;
         gbc.weightx = 1.5;
@@ -157,7 +185,7 @@ public class ChatPanel extends JPanel {
         connectPort.getDocument().addDocumentListener(limit(connectPort, 10));
         resetGBC(gbc);
         gbc.anchor = GridBagConstraints.SOUTH;
-        gbc.gridy = 3;
+        gbc.gridy = 5;
         gbc.gridx = 1;
         gbc.gridwidth = 1;
         gbc.weightx = 0.5;
@@ -166,12 +194,29 @@ public class ChatPanel extends JPanel {
         connect.addActionListener(this::connectStart);
         resetGBC(gbc);
         gbc.anchor = GridBagConstraints.SOUTH;
-        gbc.gridy = 4;
+        gbc.gridy = 6;
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         gbc.weightx = 2.0;
         config.add(connect,gbc);
         return config;
+    }
+
+    private void mqttStart(ActionEvent actionEvent) {
+        String room = mqttroom.getText();
+        if(ObjectUtils.isEmpty(room)) {
+            ChatService.sysMessage("请填写公网频道编号！");
+            return;
+        }
+        ChatService.mqttroom = room.trim();
+        String name = userName.getText();
+        if(ObjectUtils.isEmpty(name)) {
+            ChatService.sysMessage("请填写聊天您的昵称！");
+            return;
+        }
+        ChatService.userName = name.trim();
+        mqttStatus(false,"接入公网中。。。");
+        ChatService.mqttconnect();
     }
 
     private JGridBagPanel chatPanel() {
@@ -254,14 +299,19 @@ public class ChatPanel extends JPanel {
 
     private void sendMessage(ActionEvent e) {
         String message = inputField.getText().trim();
-        if(!ChatService.connect) {
-            ChatService.sysMessage("未加入聊天室");
+        if(!ChatService.connect && !ChatService.mqtt) {
+            ChatService.sysMessage("未加入聊天室或未启用公网频道");
         }
         else if (!message.isEmpty()) {
-            TextMessage textMessage = new TextMessage();
-            textMessage.setMessage(message);
-            textMessage.setName(ChatService.userName);
-            ChatService.customerHandler.sendMessage(textMessage);
+            if(ChatService.connect) {
+                TextMessage textMessage = new TextMessage();
+                textMessage.setMessage(message);
+                textMessage.setName(ChatService.userName);
+                ChatService.customerHandler.sendMessage(textMessage);
+            }
+            if(ChatService.mqtt) {
+                MqttService.message(message);
+            }
             inputField.setText("");
         }
     }
@@ -332,6 +382,13 @@ public class ChatPanel extends JPanel {
         if(ObjectUtils.isNotEmpty(connect)) {
             connect.setEnabled(cenClick);
             connect.setText(text);
+        }
+    }
+
+    public void mqttStatus(Boolean cenClick,String text) {
+        if(ObjectUtils.isNotEmpty(mqtt)) {
+            mqtt.setEnabled(cenClick);
+            mqtt.setText(text);
         }
     }
 

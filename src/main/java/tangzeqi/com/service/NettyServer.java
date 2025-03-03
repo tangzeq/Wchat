@@ -70,6 +70,9 @@ public class NettyServer {
             channel.closeFuture().sync();
             return port.get();
         } catch (InterruptedException e) {
+            open = false;
+            server = new ServerBootstrap();
+            startStatus(false);
             Thread.currentThread().interrupt();
             e.printStackTrace();
         } finally {
@@ -81,9 +84,13 @@ public class NettyServer {
     }
 
     public void out() {
-        channel.close();
-        for (ChannelHandlerContext value : serverHandler.customerCache.values()) {
-            value.close();
+        try {
+            channel.close();
+            for (ChannelHandlerContext value : serverHandler.customerCache.values()) {
+                value.close();
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 

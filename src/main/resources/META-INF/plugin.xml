@@ -13,6 +13,7 @@
         <h1>Informations</h1><br>
         <em>1. This is a chat plugin integrated within the Integrated Development Environment (IDE), accessible via the shortcut Ctrl+1.</em><br>
         <em>2. Right-click to transmit anchor points to the chat interface.</em><br>
+        <em>3. Access MQTT for public network chat.</em><br>
     ]]></description>
   <application-components>
     <component>

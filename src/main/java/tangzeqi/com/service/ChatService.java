@@ -28,6 +28,10 @@ public class ChatService {
     public static String userName;
     public static String connectIp;
     public static String connectPort;
+
+    public static volatile boolean mqtt;
+    public static volatile String mqttroom;
+
     private static volatile NettyServer server = new NettyServer();
     public static volatile ServerHandler serverHandler = new ServerHandler();
     private static volatile NettyCustomer customer = new NettyCustomer();
@@ -148,9 +152,54 @@ public class ChatService {
     public static void shutDown() {
         server.shutDown();
         customer.shutDown();
+        MqttService.shutDowm();
     }
 
     public static void sendChat(String message) {
         chat.inputFieldPost(message);
+    }
+
+    public static void mqttconnect() {
+        if (!mqtt) {
+            sysMessage("正在启用公网频道");
+            executor.execute(()-> {
+                try {
+                    MqttService.start(mqttroom,userName);
+                } catch (Throwable e) {
+                    ChatService.mqtt = true;
+                    sysMessage("启用公网频道失败");
+                    mqttStatus(false);
+                    e.printStackTrace();
+                }
+            });
+        } else {
+            sysMessage("正在关闭公网频道");
+            executor.execute(()->MqttService.out());
+        }
+    }
+
+    public static void mqttStatus(Boolean onOff) {
+        if(mqtt == onOff) return;
+        if(onOff) {
+            sysMessage("关闭聊天室");
+            sysMessage("启用公网频道");
+            //关闭 聊天室
+            server.out();
+            customer.out();
+            //禁用 启动聊天室 进入聊天室
+            connect = false;
+            chat.connectStatus(false,"进入聊天室");
+            start = false;
+            chat.serverStatus(false,"启动聊天室");
+            chat.mqttStatus(true,"关闭公网聊天");
+        } else {
+            //启用 启动聊天室 进入聊天室
+            sysMessage("退出公网频道");
+            sysMessage("开启聊天室");
+            chat.connectStatus(true,"进入聊天室");
+            chat.serverStatus(true,"启动聊天室");
+            chat.mqttStatus(true,"开启公网聊天");
+        }
+        mqtt = onOff;
     }
 }
