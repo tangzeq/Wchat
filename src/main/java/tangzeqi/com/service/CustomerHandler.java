@@ -39,8 +39,6 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
     static volatile int online = 0;
 
 
-
-
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         String hostString = remoteHost(ctx);
@@ -69,9 +67,10 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
                     s.setId(ChannelUtils.makeId(remoteCache.values().stream().findFirst().get()));
                     s.setChanleId(remoteCache.values().stream().findFirst().get().channel().id().toString());
                 }
-                if(digestion(s)) continue;
+                if (digestion(s)) continue;
                 //推送信息到本地服务
-                if (ObjectUtils.isEmpty(serverHandler.messageCache.getIfPresent(s.getId()))) serverHandler.getMessage().add(s);
+                if (ObjectUtils.isEmpty(serverHandler.messageCache.getIfPresent(s.getId())))
+                    serverHandler.getMessage().add(s);
                 //推送信息到外部服务
                 if (!ObjectUtils.isEmpty(messageCache.getIfPresent(s.getId()))) continue;
                 for (ChannelHandlerContext context : remoteCache.values()) {
@@ -92,11 +91,11 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
         if (!ObjectUtils.isEmpty(msg) && !"\r\n".equals(msg)) {
             BaseMessage bm = MessageUtils.resolve(msg);
             messageCache.put(bm.getId(), 1);
-            if(bm.getType().compareTo(5) == 0)  {
-                chatMessage(((TextMessage)bm.getMessage()).getMessage(),bm.getMessage().getName());
+            if (bm.getType().compareTo(5) == 0) {
+                chatMessage(((TextMessage) bm.getMessage()).getMessage(), bm.getMessage().getName());
             }
 //            MessageStorage.add(bm);
-            if(!digestion(bm)) queue.add(bm);
+            if (!digestion(bm)) queue.add(bm);
         }
 
     }
@@ -106,7 +105,7 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
         switch (bm.getType().intValue()) {
             case 1: {
                 final Integer old = serverHandler.getServerCache().size();
-                 MapMessage mapMessage= (MapMessage) bm.getMessage();
+                MapMessage mapMessage = (MapMessage) bm.getMessage();
                 serverHandler.getServerCache().putAll(mapMessage.getMessage());
                 final Integer now = serverHandler.getServerCache().size();
 //                System.out.println("ServerCache = " + serverHandler.getServerCache().values());
@@ -120,7 +119,7 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
             case 2: {
                 final Integer old = serverHandler.getServerCache().size();
                 TextMessage textMessage = (TextMessage) bm.getMessage();
-                if(serverHandler.getCustomerHost().containsValue(textMessage.getMessage())) {
+                if (serverHandler.getCustomerHost().containsValue(textMessage.getMessage())) {
                     BaseMessage nbm = BaseMessage.builder().message(textMessage).type(1).build();
                     queue.add(nbm);
                     rest = true;
@@ -159,12 +158,13 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
         remoteCache.remove(ctx.channel().id().toString(), ctx);
         boolean single = true;
         for (ChannelHandlerContext context : remoteCache.values()) {
-            if(remoteHost(context).equals(hostString) &&remotePort(context).compareTo(Integer.valueOf(portString)) == 0 ) single = false;
+            if (remoteHost(context).equals(hostString) && remotePort(context).compareTo(Integer.valueOf(portString)) == 0)
+                single = false;
         }
-        if(single) serverHandler.delServerCache(hostString + ":" + portString);
+        if (single) serverHandler.delServerCache(hostString + ":" + portString);
         restremote();
         BaseMessage bm = BaseMessage.builder().type(2).message(TextMessage.builder().message(hostString + ":" + portString).build()).build();
-        if(single) queue.add(bm);
+        if (single) queue.add(bm);
         serverHandler.active = true;
     }
 
@@ -183,7 +183,7 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
      * 外部重连
      */
     public void restremote() {
-        if(remoteCache.size()<=0){
+        if (remoteCache.size() <= 0) {
             boolean connect = false;
             for (Object context : serverHandler.getServerCache().values()) {
                 String[] split = context.toString().split(":");

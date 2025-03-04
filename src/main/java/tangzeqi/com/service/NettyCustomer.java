@@ -41,7 +41,7 @@ public class NettyCustomer {
                 return;
             }
             open = true;
-            if(ObjectUtils.isEmpty(customerBoot)) customerBoot = new Bootstrap();
+            if (ObjectUtils.isEmpty(customerBoot)) customerBoot = new Bootstrap();
             channel = customerBoot
                     .group(message)
                     .channel(NioSocketChannel.class)
@@ -55,7 +55,7 @@ public class NettyCustomer {
                         }
                     })
                     .connect(inetHost, port).sync().channel();
-            sysMessage("已接入聊天室"+" IP " + inetHost + ", 端口号 " + port);
+            sysMessage("已接入聊天室" + " IP " + inetHost + ", 端口号 " + port);
             connectStatus(true);
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
@@ -70,10 +70,10 @@ public class NettyCustomer {
         }
     }
 
-     public void out() {
+    public void out() {
         try {
             final Collection<ChannelHandlerContext> remotes = customerHandler.remotes();
-            for (ChannelHandlerContext remote : remotes){
+            for (ChannelHandlerContext remote : remotes) {
                 remote.close();
             }
         } catch (Throwable e) {

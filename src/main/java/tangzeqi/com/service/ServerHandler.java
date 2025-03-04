@@ -68,12 +68,13 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             }
         }
     }
+
     @SneakyThrows
     public void makeonLine() {
         if (online == 0) {
             sysMessage("服务端 激活");
             online++;
-            executor.execute(()-> {
+            executor.execute(() -> {
                 while (true) {
                     try {
                         Thread.sleep(50);
@@ -89,41 +90,41 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
             });
-            executor.execute(()-> {
-                    while (true) {
-                        try {
-                            Thread.sleep(0);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        //信息
-                        while (message.size() > 0) {
-                            BaseMessage s = message.poll();
-                            if (!ObjectUtils.isEmpty(s)) {
-                                if (ObjectUtils.isEmpty(messageCache.getIfPresent(s.getId()))) {
-                                    messageCache.put(s.getId(), 1);
-                                    customerHandler.getQueueQueue().add(s);
-                                    for (ChannelHandlerContext context : customerCache.values()) {
-                                        while (!active) {
-                                            try {
-                                                Thread.sleep(50);
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
-                                            }
+            executor.execute(() -> {
+                while (true) {
+                    try {
+                        Thread.sleep(0);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    //信息
+                    while (message.size() > 0) {
+                        BaseMessage s = message.poll();
+                        if (!ObjectUtils.isEmpty(s)) {
+                            if (ObjectUtils.isEmpty(messageCache.getIfPresent(s.getId()))) {
+                                messageCache.put(s.getId(), 1);
+                                customerHandler.getQueueQueue().add(s);
+                                for (ChannelHandlerContext context : customerCache.values()) {
+                                    while (!active) {
+                                        try {
+                                            Thread.sleep(50);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
                                         }
-//                                        sysMessage(ChannelUtils.localHost(context) + ":" + ChannelUtils.localPort(context) + "服务端 向" + ChannelUtils.remoteHost(context) + ":" + ChannelUtils.remotePort(context) + "发送信息, msg = " + s);
-                                        executor.execute(()-> {
-                                            try {
-                                                context.writeAndFlush(Unpooled.copiedBuffer((JSON.toJSONString(s) + "" + System.getProperty("line.separator")).getBytes("UTF-8")));
-                                            } catch (UnsupportedEncodingException e) {
-                                                e.printStackTrace();
-                                            }
-                                        });
                                     }
+//                                        sysMessage(ChannelUtils.localHost(context) + ":" + ChannelUtils.localPort(context) + "服务端 向" + ChannelUtils.remoteHost(context) + ":" + ChannelUtils.remotePort(context) + "发送信息, msg = " + s);
+                                    executor.execute(() -> {
+                                        try {
+                                            context.writeAndFlush(Unpooled.copiedBuffer((JSON.toJSONString(s) + "" + System.getProperty("line.separator")).getBytes("UTF-8")));
+                                        } catch (UnsupportedEncodingException e) {
+                                            e.printStackTrace();
+                                        }
+                                    });
                                 }
                             }
                         }
                     }
+                }
             });
         }
     }

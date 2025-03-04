@@ -1,34 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<idea-plugin>
-  <id>tangzeqi.com.chatplugin</id>
-  <name>WChat</name>
-  <version>1.0</version>
-  <vendor email="1807788283@qq.com" url="https://www.cnblogs.com/tangzeqi">tangzeqi</vendor>
-  <change-notes>Initial release</change-notes>
-  <idea-version since-build="2020.1"/>
-  <depends>com.intellij.modules.platform</depends>
-  <depends>com.intellij.modules.java</depends>
-  <description><![CDATA[
+<idea-plugin
+        allow-bundled-update="true"
+        require-restart="false"
+>
+    <id>tangzeqi.com.chatplugin</id>
+    <name>WChat</name>
+    <version>1.0</version>
+    <vendor email="1807788283@qq.com" url="https://www.cnblogs.com/tangzeqi">tangzeqi</vendor>
+    <change-notes>Initial release</change-notes>
+    <idea-version since-build="2020.1"/>
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+    <description><![CDATA[
         <h2><a href="https://github.com/tangzeq/Wchat">GitHub</a>   <a href="https://www.cnblogs.com/tangzeqi">博客园</a></h2>
         <h1>Informations</h1><br>
         <em>1. This is a chat plugin integrated within the Integrated Development Environment (IDE), accessible via the shortcut Ctrl+1.</em><br>
         <em>2. Right-click to transmit anchor points to the chat interface.</em><br>
         <em>3. Access MQTT for public network chat.</em><br>
     ]]></description>
-  <application-components>
-    <component>
-      <implementation-class>tangzeqi.com.plugin.ChatPlugin</implementation-class>
-    </component>
-  </application-components>
-  <applicationListeners>
-    <listener class="tangzeqi.com.listener.IDEcloseListener" topic="com.intellij.ide.AppLifecycleListener"></listener>
-  </applicationListeners>
-  <actions>
-    <action id="tangzeqi.com.panel.ShowChat" class="tangzeqi.com.action.ShowChatAction" text="Show Chat">
-      <keyboard-shortcut first-keystroke="ctrl 1" keymap="$default"/>
-    </action>
-    <action id="tangzeqi.com.action.CodeLineToChat" class="tangzeqi.com.action.CodeLineToChat" text="发送到Wchat">
-      <add-to-group group-id="EditorPopupMenu" anchor="first"></add-to-group>
-    </action>
-  </actions>
+    <applicationListeners>
+        <listener class="tangzeqi.com.listener.IDEListener"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
+        <listener class="tangzeqi.com.listener.PluginListener"
+                  topic="com.intellij.ide.plugins.DynamicPluginListener"/>
+    </applicationListeners>
+    <actions>
+        <action id="tangzeqi.com.panel.ShowChat" class="tangzeqi.com.action.ShowChatAction" text="WChat">
+            <keyboard-shortcut first-keystroke="ctrl 1" keymap="$default"/>
+        </action>
+        <action id="tangzeqi.com.action.CodeLineToChat" class="tangzeqi.com.action.CodeLineToChat" text="发送到Wchat">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </action>
+    </actions>
 </idea-plugin>

@@ -51,12 +51,14 @@ public class MqttService {
                     public void connectionLost(Throwable cause) {
                         sysMessage("您已退出公网频道");
                     }
+
                     @Override
                     public void messageArrived(String topic, MqttMessage message) throws Exception {
                         String str = new String(message.getPayload());
                         String[] split = str.split(" ");
-                        ChatService.chatMessage(str.replace(split[0]+" ",""), split[0]);
+                        ChatService.chatMessage(str.replace(split[0] + " ", ""), split[0]);
                     }
+
                     @Override
                     public void deliveryComplete(IMqttDeliveryToken token) {
                         System.out.println("Message delivered");
@@ -74,7 +76,7 @@ public class MqttService {
     public static void message(String str) {
         try {
             str = String.format("%s %s", userName, str);
-            if(ObjectUtils.isNotEmpty(client)) {
+            if (ObjectUtils.isNotEmpty(client)) {
                 client.publish(TOPIC, new MqttMessage(str.getBytes()));
             }
         } catch (Throwable e) {
