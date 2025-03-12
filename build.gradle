@@ -3,7 +3,7 @@ plugins {
   id 'org.jetbrains.intellij' version '0.7.3'  // IntelliJ 官方插件依赖
 }
 group 'tangzeqi.com'
-version '1.0.2'
+version '1.0.3'
 
 
 repositories {
@@ -19,6 +19,8 @@ intellij {
   version = '2020.1'  // 指定兼容的 IDEA 版本
   type = 'IC'           // 社区版（商业版用 'IU'）
   plugins = ['java']    // 依赖插件（如 Spring/Kotlin 按需添加）
+  downloadSources = true
+  instrumentCode = true
 }
 
 dependencies {

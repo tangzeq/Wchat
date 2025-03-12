@@ -13,13 +13,12 @@ public class CodeLineToChat extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent an) {
-        ChatService.project = an.getProject();
-        ChatPanel.register(ChatService.project);
         FileEditorManager manager = FileEditorManager.getInstance(an.getProject());
         String path = manager.getSelectedEditor().getFile().getPath();
         String base = ChatService.project.getBaseDir().getPath();
         String name = path.replace(base, "");
         int line = manager.getSelectedTextEditor().getCaretModel().getLogicalPosition().line + 1;
         ChatService.sendChat(name + ":" + line + "（点击跳转）");
+        ChatService.showContent("chat");
     }
 }

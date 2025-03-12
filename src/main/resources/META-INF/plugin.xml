@@ -18,16 +18,16 @@
         <em>2. Right-click to transmit anchor points to the chat interface.</em><br>
         <em>3. Access MQTT for public network chat.</em><br>
     ]]></description>
-    <applicationListeners>
-        <listener class="tangzeqi.com.listener.IDEListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-        <listener class="tangzeqi.com.listener.PluginListener"
-                  topic="com.intellij.ide.plugins.DynamicPluginListener"/>
-    </applicationListeners>
+<!--    <applicationListeners>-->
+<!--        <listener class="tangzeqi.com.listener.IDEListener"-->
+<!--                  topic="com.intellij.openapi.project.ProjectManagerListener"/>-->
+<!--        <listener class="tangzeqi.com.listener.PluginListener"-->
+<!--                  topic="com.intellij.ide.plugins.DynamicPluginListener"/>-->
+<!--    </applicationListeners>-->
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="WChat" anchor="bottom" icon="AllIcons.Actions.Edit" factoryClass="tangzeqi.com.extensions.MyToolWindowFactory" />
+    </extensions>
     <actions>
-        <action id="tangzeqi.com.panel.ShowChat" class="tangzeqi.com.action.ShowChatAction" text="WChat">
-            <keyboard-shortcut first-keystroke="ctrl 1" keymap="$default"/>
-        </action>
         <action id="tangzeqi.com.action.CodeLineToChat" class="tangzeqi.com.action.CodeLineToChat" text="发送到Wchat">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>

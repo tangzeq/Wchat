@@ -1,22 +1,18 @@
 package tangzeqi.com.service;
 
-import com.intellij.execution.TaskExecutor;
-import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.newvfs.impl.VirtualFileImpl;
-import com.intellij.psi.PsiManager;
+import com.intellij.openapi.wm.ToolWindow;
 import io.netty.bootstrap.Bootstrap;
-import lombok.SneakyThrows;
 import org.apache.commons.lang3.ObjectUtils;
-import tangzeqi.com.action.ShowChatAction;
 import tangzeqi.com.panel.ChatPanel;
+import tangzeqi.com.panel.ConfigPanel;
+import tangzeqi.com.panel.HomePanel;
 
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,6 +22,8 @@ public class ChatService {
     public static boolean start;
     public static boolean connect;
     public static ChatPanel chat;
+    public static ConfigPanel config;
+    public static HomePanel home;
     public static String serverIp;
     public static String serverPort;
     public static String userName;
@@ -34,6 +32,7 @@ public class ChatService {
 
     public static volatile boolean mqtt;
     public static volatile String mqttroom;
+    public static volatile ToolWindow toolWindow;
 
     private static volatile NettyServer server = new NettyServer();
     public static volatile ServerHandler serverHandler = new ServerHandler();
@@ -73,11 +72,11 @@ public class ChatService {
     public static void startStatus(Boolean onOff) {
         if (ChatService.start == onOff) return;
         if (onOff) {
-            chat.serverStatus(true, "关闭聊天室");
+            config.serverStatus(true, "关闭聊天室");
             sysMessage("本地聊天室已启动");
             ChatService.start = true;
         } else {
-            chat.serverStatus(true, "启动聊天室");
+            config.serverStatus(true, "启动聊天室");
             sysMessage("本地聊天室已关闭");
             ChatService.start = false;
         }
@@ -108,11 +107,11 @@ public class ChatService {
     public static void connectStatus(Boolean onOff) {
         if (ChatService.connect == onOff) return;
         if (onOff) {
-            chat.connectStatus(true, "退出聊天室");
+            config.connectStatus(true, "退出聊天室");
             sysMessage(userName + "已加入聊天室");
             ChatService.connect = true;
         } else {
-            chat.connectStatus(true, "进入聊天室");
+            config.connectStatus(true, "进入聊天室");
             sysMessage(userName + "已退出聊天室");
             ChatService.connect = false;
         }
@@ -124,8 +123,8 @@ public class ChatService {
      * @param m 信息
      */
     public static void sysMessage(String m) {
-        if (ObjectUtils.isNotEmpty(chat)) {
-            chat.addSysMessage(m, "系统");
+        if (ObjectUtils.isNotEmpty(config)) {
+            config.addSysMessage(m, "系统");
         }
     }
 
@@ -154,17 +153,10 @@ public class ChatService {
 
     public static void shutDown() {
         System.out.println("Wchat is shutDowning...");
-        server.shutDown();
-        customer.shutDown();
-        MqttService.shutDowm();
+        executor.execute(()->server.shutDown());
+        executor.execute(()->customer.shutDown());
+        executor.execute(()->MqttService.shutDowm());
         System.out.println("Wchat is shutDowned");
-    }
-
-    public static void load(Project project) {
-        System.out.println("Wchat is loading...");
-        ChatService.project = project;
-        ChatPanel.register(project);
-        System.out.println("Wchat is loaded");
     }
 
     public static void sendChat(String message) {
@@ -200,18 +192,22 @@ public class ChatService {
             customer.out();
             //禁用 启动聊天室 进入聊天室
             connect = false;
-            chat.connectStatus(false, "进入聊天室");
+            config.connectStatus(false, "进入聊天室");
             start = false;
-            chat.serverStatus(false, "启动聊天室");
-            chat.mqttStatus(true, "关闭公网聊天");
+            config.serverStatus(false, "启动聊天室");
+            config.mqttStatus(true, "关闭公网聊天");
         } else {
             //启用 启动聊天室 进入聊天室
             sysMessage("退出公网频道");
             sysMessage("开启聊天室");
-            chat.connectStatus(true, "进入聊天室");
-            chat.serverStatus(true, "启动聊天室");
-            chat.mqttStatus(true, "开启公网聊天");
+            config.connectStatus(true, "进入聊天室");
+            config.serverStatus(true, "启动聊天室");
+            config.mqttStatus(true, "开启公网聊天");
         }
         mqtt = onOff;
+    }
+
+    public static void showContent(String name) {
+        toolWindow.getContentManager().setSelectedContent(toolWindow.getContentManager().findContent(name));
     }
 }
