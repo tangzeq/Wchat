@@ -6,7 +6,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.ui.UIUtil;
 import org.apache.commons.lang3.ObjectUtils;
-import tangzeqi.com.service.ChatService;
+import tangzeqi.com.project.MyProject;
 import tangzeqi.com.utils.NetUtils;
 
 import javax.swing.*;
@@ -17,6 +17,7 @@ import static tangzeqi.com.utils.PanelUtils.resetGBC;
 import static tangzeqi.com.utils.PanelUtils.textLimit;
 
 public class ConfigPanel extends JPanel {
+    private final String project;
     private final JButton mqtt;
     private final JBTextField mqttroom;
     private final JBTextField serverIp;
@@ -31,8 +32,9 @@ public class ConfigPanel extends JPanel {
 
     private GridBagConstraints gbc = new GridBagConstraints();
 
-    public ConfigPanel() {
+    public ConfigPanel(String project) {
         super(new BorderLayout());
+        this.project = project;
         String host = NetUtils.host();
         String port = String.valueOf(NetUtils.port());
         String topic = "88283";
@@ -56,10 +58,10 @@ public class ConfigPanel extends JPanel {
         sysPanel();
         /////////////////////配置窗口///////////////////////
         configPanel();
-        ChatService.config = this;
-        ChatService.sysMessage("检索到IP地址 " + host);
-        ChatService.sysMessage("检索到可用端口 " + port);
-        ChatService.sysMessage("预设公网频道号 " + topic);
+        MyProject.cache(project).config = this;
+        MyProject.cache(project).sysMessage("检索到IP地址 " + host);
+        MyProject.cache(project).sysMessage("检索到可用端口 " + port);
+        MyProject.cache(project).sysMessage("预设公网频道号 " + topic);
     }
 
     private void configPanel() {
@@ -144,18 +146,18 @@ public class ConfigPanel extends JPanel {
     private void mqttStart(ActionEvent actionEvent) {
         String room = mqttroom.getText();
         if (ObjectUtils.isEmpty(room)) {
-            ChatService.sysMessage("请填写公网频道编号！");
+            MyProject.cache(project).sysMessage("请填写公网频道编号！");
             return;
         }
-        ChatService.mqttroom = room.trim();
+        MyProject.cache(project).mqttroom = room.trim();
         String name = userName.getText();
         if (ObjectUtils.isEmpty(name)) {
-            ChatService.sysMessage("请填写聊天您的昵称！");
+            MyProject.cache(project).sysMessage("请填写聊天您的昵称！");
             return;
         }
-        ChatService.userName = name.trim();
+        MyProject.cache(project).userName = name.trim();
         mqttStatus(false, "接入公网中。。。");
-        ChatService.mqttconnect();
+        MyProject.cache(project).mqttconnect();
     }
 
     private void sysPanel() {
@@ -183,47 +185,47 @@ public class ConfigPanel extends JPanel {
     private void connectStart(ActionEvent actionEvent) {
         String name = userName.getText();
         if (ObjectUtils.isEmpty(name)) {
-            ChatService.sysMessage("请填写聊天您的昵称！");
+            MyProject.cache(project).sysMessage("请填写聊天您的昵称！");
             userName.requestFocusInWindow();
             return;
         }
-        ChatService.userName = name.trim();
+        MyProject.cache(project).userName = name.trim();
         String ip = connectIp.getText();
         if (ObjectUtils.isEmpty(ip)) {
-            ChatService.sysMessage("请指定连接服务器IP！");
+            MyProject.cache(project).sysMessage("请指定连接服务器IP！");
             connectIp.requestFocusInWindow();
             return;
         }
-        ChatService.connectIp = ip.trim();
+        MyProject.cache(project).connectIp = ip.trim();
         String port = connectPort.getText();
         if (ObjectUtils.isEmpty(port)) {
-            ChatService.sysMessage("请指定连接服务器端口号！");
+            MyProject.cache(project).sysMessage("请指定连接服务器端口号！");
             connectPort.requestFocusInWindow();
             return;
         }
-        ChatService.connectPort = port.trim();
+        MyProject.cache(project).connectPort = port.trim();
         connectStatus(false, "处理中。。。");
-        ChatService.connect();
+        MyProject.cache(project).connect();
     }
 
     //系统启动程序
     private void serverStart(ActionEvent actionEvent) {
         String ip = serverIp.getText();
         if (ObjectUtils.isEmpty(ip)) {
-            ChatService.sysMessage("请指定本地服务器IP！");
+            MyProject.cache(project).sysMessage("请指定本地服务器IP！");
             serverIp.requestFocusInWindow();
             return;
         }
-        ChatService.serverIp = ip.trim();
+        MyProject.cache(project).serverIp = ip.trim();
         String port = serverPort.getText();
         if (ObjectUtils.isEmpty(port)) {
-            ChatService.sysMessage("请指定本地服务器端口号！");
+            MyProject.cache(project).sysMessage("请指定本地服务器端口号！");
             serverPort.requestFocusInWindow();
             return;
         }
-        ChatService.serverPort = port.trim();
+        MyProject.cache(project).serverPort = port.trim();
         serverStatus(false, "处理中。。。");
-        ChatService.start();
+        MyProject.cache(project).start();
     }
 
     public void serverStatus(Boolean cenClick, String text) {
@@ -247,8 +249,8 @@ public class ConfigPanel extends JPanel {
         }
     }
 
-    public static Content content() {
-        ConfigPanel configPanel = new ConfigPanel();
+    public static Content content(String project) {
+        ConfigPanel configPanel = new ConfigPanel(project);
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.BOTH;

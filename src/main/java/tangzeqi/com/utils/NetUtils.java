@@ -1,6 +1,7 @@
 package tangzeqi.com.utils;
 
 import lombok.SneakyThrows;
+import tangzeqi.com.project.MyProject;
 import tangzeqi.com.service.ChatService;
 
 import java.io.IOException;
@@ -64,14 +65,14 @@ public class NetUtils {
         return port;
     }
 
-    public static Boolean port(int port) {
-        ChatService.sysMessage("检查端口是否可用");
+    public static Boolean port(String project,int port) {
+        MyProject.cache(project).sysMessage("检查端口是否可用");
         try {
             ServerSocket socket = new ServerSocket(port);
             socket.close();
-            ChatService.sysMessage("端口 " + port + " 可用");
+            MyProject.cache(project).sysMessage("端口 " + port + " 可用");
         } catch (IOException ignored) {
-            ChatService.sysMessage("端口 " + port + " 已被占用");
+            MyProject.cache(project).sysMessage("端口 " + port + " 已被占用");
             return false;
         }
         return true;

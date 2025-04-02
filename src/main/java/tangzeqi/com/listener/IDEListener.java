@@ -3,7 +3,7 @@ package tangzeqi.com.listener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManagerListener;
 import org.jetbrains.annotations.NotNull;
-import tangzeqi.com.service.ChatService;
+import tangzeqi.com.project.MyProject;
 
 public class IDEListener implements ProjectManagerListener {
     @Override
@@ -15,7 +15,7 @@ public class IDEListener implements ProjectManagerListener {
     @Override
     public void projectClosing(@NotNull Project project) {
         System.out.println("Wchat is executing the ProjectManagerListener Listener listener : projectClosing");
-        ChatService.shutDown();
+        MyProject.cache(project.getName()).shutDown();
         System.out.println("Wchat is executed the ProjectManagerListener Listener listener : projectClosing");
     }
 }

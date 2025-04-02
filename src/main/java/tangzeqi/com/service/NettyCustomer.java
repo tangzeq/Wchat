@@ -13,6 +13,7 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.ObjectUtils;
+import tangzeqi.com.project.MyProject;
 
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -24,9 +25,15 @@ import static tangzeqi.com.service.ChatService.*;
  * 作者：唐泽齐
  */
 public class NettyCustomer {
+    private final String project;
+
     private volatile NioEventLoopGroup message = new NioEventLoopGroup();
     private volatile Channel channel;
     private volatile boolean open = false;
+
+    public NettyCustomer(String project) {
+        this.project = project;
+    }
 
     public void makerCustomer(String inetHost, int port, CustomerHandler customerHandler) throws Throwable {
         customerHandler.makeonLine();
@@ -34,15 +41,15 @@ public class NettyCustomer {
             if (open) {
                 final Collection<ChannelHandlerContext> remotes = customerHandler.remotes();
                 for (ChannelHandlerContext remote : remotes) remote.close();
-                sysMessage("客户端更新连接至 " + inetHost + ":" + port);
-                connectStatus(true);
-                channel = customerBoot.connect(inetHost, port).channel();
+                MyProject.cache(project).sysMessage("客户端更新连接至 " + inetHost + ":" + port);
+                MyProject.cache(project).connectStatus(true);
+                channel = MyProject.cache(project).customerBoot.connect(inetHost, port).channel();
                 channel.closeFuture().sync();
                 return;
             }
             open = true;
-            if (ObjectUtils.isEmpty(customerBoot)) customerBoot = new Bootstrap();
-            channel = customerBoot
+            if (ObjectUtils.isEmpty(MyProject.cache(project).customerBoot)) MyProject.cache(project).customerBoot = new Bootstrap();
+            channel = MyProject.cache(project).customerBoot
                     .group(message)
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {
@@ -55,24 +62,24 @@ public class NettyCustomer {
                         }
                     })
                     .connect(inetHost, port).sync().channel();
-            sysMessage("已接入聊天室" + " IP " + inetHost + ", 端口号 " + port);
-            connectStatus(true);
+            MyProject.cache(project).sysMessage("已接入聊天室" + " IP " + inetHost + ", 端口号 " + port);
+            MyProject.cache(project).connectStatus(true);
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
             open = false;
-            customerBoot = new Bootstrap();
-            connectStatus(false);
+            MyProject.cache(project).customerBoot = new Bootstrap();
+            MyProject.cache(project).connectStatus(false);
             Thread.currentThread().interrupt();
             e.printStackTrace();
         } finally {
 //            message.shutdownGracefully().sync();
-            connectStatus(false);
+            MyProject.cache(project).connectStatus(false);
         }
     }
 
     public void out() {
         try {
-            final Collection<ChannelHandlerContext> remotes = customerHandler.remotes();
+            final Collection<ChannelHandlerContext> remotes = MyProject.cache(project).customerHandler.remotes();
             for (ChannelHandlerContext remote : remotes) {
                 remote.close();
             }
@@ -92,8 +99,8 @@ public class NettyCustomer {
 
     public static void main(String[] args) {
         try {
-            NettyCustomer customer = new NettyCustomer();
-            customer.makerCustomer("localhost", 8888, new CustomerHandler());
+            NettyCustomer customer = new NettyCustomer("123");
+            customer.makerCustomer("localhost", 8888, new CustomerHandler("123"));
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }

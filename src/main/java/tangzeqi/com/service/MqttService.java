@@ -1,33 +1,38 @@
 package tangzeqi.com.service;
 
-import lombok.SneakyThrows;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-
-import static tangzeqi.com.service.ChatService.*;
+import tangzeqi.com.project.MyProject;
 
 public class MqttService {
+    private final String project;
     // 公共 MQTT 代理的地址
-    private static volatile String BROKER_URL = "tcp://broker.hivemq.com:1883";
+    private volatile String BROKER_URL = "tcp://broker.hivemq.com:1883";
     // 订阅和发布消息的主题
-    private static volatile String TOPIC = "Wchat/" + mqttroom;
+    private volatile String TOPIC = "";
     // 客户端的唯一标识符
-    private static volatile String CLIENT_ID = ChatService.userName + System.currentTimeMillis();
-    private static volatile MqttClient client;
+    private volatile String CLIENT_ID = "";
+    private volatile MqttClient client;
 
-    private static volatile Boolean open = false;
+    private volatile Boolean open = false;
 
-    public static void start(String room, String name) {
+    public MqttService(String project) {
+        this.project = project;
+    }
+
+    public void start(String room, String name) {
+        TOPIC = "Wchat/" + MyProject.cache(project).mqttroom;
+        CLIENT_ID = MyProject.cache(project).userName + System.currentTimeMillis();
         try {
             if (open) {
                 TOPIC = "Wchat/" + room;
                 CLIENT_ID = name + System.currentTimeMillis();
                 client.subscribe(TOPIC);
-                sysMessage("您已进入公网频道，请勿泄露机密信息！");
-                sysMessage("您已进入公网频道，请勿泄露机密信息！");
-                sysMessage("您已进入公网频道，请勿泄露机密信息！");
-                mqttStatus(true);
+                MyProject.cache(project).sysMessage("您已进入公网频道，请勿泄露机密信息！");
+                MyProject.cache(project).sysMessage("您已进入公网频道，请勿泄露机密信息！");
+                MyProject.cache(project).sysMessage("您已进入公网频道，请勿泄露机密信息！");
+                MyProject.cache(project).mqttStatus(true);
             } else {
                 TOPIC = "Wchat/" + room;
                 CLIENT_ID = name + System.currentTimeMillis();
@@ -38,10 +43,10 @@ public class MqttService {
                 connOpts.setCleanSession(true);
                 // 连接到 MQTT 代理
                 client.connect(connOpts);
-                sysMessage("您已进入公网频道，请勿泄露机密信息！");
-                sysMessage("您已进入公网频道，请勿泄露机密信息！");
-                sysMessage("您已进入公网频道，请勿泄露机密信息！");
-                mqttStatus(true);
+                MyProject.cache(project).sysMessage("您已进入公网频道，请勿泄露机密信息！");
+                MyProject.cache(project).sysMessage("您已进入公网频道，请勿泄露机密信息！");
+                MyProject.cache(project).sysMessage("您已进入公网频道，请勿泄露机密信息！");
+                MyProject.cache(project).mqttStatus(true);
                 open = true;
                 // 订阅指定主题
                 client.subscribe(TOPIC);
@@ -49,14 +54,14 @@ public class MqttService {
                 client.setCallback(new MqttCallback() {
                     @Override
                     public void connectionLost(Throwable cause) {
-                        sysMessage("您已退出公网频道");
+                        MyProject.cache(project).sysMessage("您已退出公网频道");
                     }
 
                     @Override
                     public void messageArrived(String topic, MqttMessage message) throws Exception {
                         String str = new String(message.getPayload());
                         String[] split = str.split(" ");
-                        ChatService.chatMessage(str.replace(split[0] + " ", ""), split[0]);
+                        MyProject.cache(project).chatMessage(str.replace(split[0] + " ", ""), split[0]);
                     }
 
                     @Override
@@ -69,23 +74,23 @@ public class MqttService {
             Thread.currentThread().interrupt();
             e.printStackTrace();
             open = false;
-            mqtt = false;
+            MyProject.cache(project).mqtt = false;
         }
     }
 
-    public static void message(String str) {
+    public void message(String str) {
         try {
-            str = String.format("%s %s", userName, str);
+            str = String.format("%s %s", MyProject.cache(project).userName, str);
             if (ObjectUtils.isNotEmpty(client)) {
                 client.publish(TOPIC, new MqttMessage(str.getBytes()));
             }
         } catch (Throwable e) {
-            sysMessage("公网信息发送失败");
+            MyProject.cache(project).sysMessage("公网信息发送失败");
             e.printStackTrace();
         }
     }
 
-    public static void shutDowm() {
+    public void shutDowm() {
         try {
             client.unsubscribe(TOPIC);
             client.disconnect();
@@ -95,10 +100,10 @@ public class MqttService {
         }
     }
 
-    public static void out() {
+    public void out() {
         try {
             client.unsubscribe(TOPIC);
-            mqttStatus(false);
+            MyProject.cache(project).mqttStatus(false);
         } catch (MqttException e) {
             e.printStackTrace();
         }

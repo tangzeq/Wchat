@@ -9,6 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.ObjectUtils;
+import tangzeqi.com.project.MyProject;
 import tangzeqi.com.stroge.BaseMessage;
 import tangzeqi.com.stroge.NodeNet;
 import tangzeqi.com.stroge.TextMessage;
@@ -24,7 +25,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static tangzeqi.com.service.ChatService.*;
 import static tangzeqi.com.utils.ChannelUtils.remoteHost;
 import static tangzeqi.com.utils.ChannelUtils.remotePort;
 
@@ -34,15 +34,20 @@ import static tangzeqi.com.utils.ChannelUtils.remotePort;
  */
 @ChannelHandler.Sharable
 public class ServerHandler extends ChannelInboundHandlerAdapter {
-    static volatile public Cache<Long, Object> messageCache = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofSeconds(60)).build();
-    static volatile ConcurrentLinkedQueue<BaseMessage> message = new ConcurrentLinkedQueue<>();
-    static volatile Map<String, ChannelHandlerContext> customerCache = new ConcurrentHashMap<>();
-    static volatile Map<String, String> serverCache = new ConcurrentHashMap<String, String>();
-    static volatile Map<String, String> customerHost = new ConcurrentHashMap<String, String>();
-    static volatile int online = 0;
-    static volatile public String host = "";
-    static volatile public Integer port = -1;
-    static volatile public boolean active = true;
+    private final String project;
+    volatile public Cache<Long, Object> messageCache = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofSeconds(60)).build();
+    volatile ConcurrentLinkedQueue<BaseMessage> message = new ConcurrentLinkedQueue<>();
+    volatile Map<String, ChannelHandlerContext> customerCache = new ConcurrentHashMap<>();
+    volatile Map<String, String> serverCache = new ConcurrentHashMap<String, String>();
+    volatile Map<String, String> customerHost = new ConcurrentHashMap<String, String>();
+    volatile int online = 0;
+    volatile public String host = "";
+    volatile public Integer port = -1;
+    volatile public boolean active = true;
+
+    public ServerHandler(String project) {
+        this.project = project;
+    }
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
@@ -54,7 +59,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         customerCache.remove(ctx.channel().id().toString(), ctx);
         String server = customerHost.remove(ctx.channel().id().toString());
         BaseMessage bm = BaseMessage.builder().id(ChannelUtils.makeId(ctx)).type(2).message(TextMessage.builder().message(server).build()).build();
-        if (!customerHost.containsValue(server)) customerHandler.getQueueQueue().add(bm);
+        if (!customerHost.containsValue(server)) MyProject.cache(project).customerHandler.getQueueQueue().add(bm);
     }
 
     @Override
@@ -72,9 +77,9 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     @SneakyThrows
     public void makeonLine() {
         if (online == 0) {
-            sysMessage("服务端 激活");
+            MyProject.cache(project).sysMessage("服务端 激活");
             online++;
-            executor.execute(() -> {
+            MyProject.cache(project).executor.execute(() -> {
                 while (true) {
                     try {
                         Thread.sleep(50);
@@ -90,7 +95,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
             });
-            executor.execute(() -> {
+            MyProject.cache(project).executor.execute(() -> {
                 while (true) {
                     try {
                         Thread.sleep(0);
@@ -103,7 +108,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                         if (!ObjectUtils.isEmpty(s)) {
                             if (ObjectUtils.isEmpty(messageCache.getIfPresent(s.getId()))) {
                                 messageCache.put(s.getId(), 1);
-                                customerHandler.getQueueQueue().add(s);
+                                MyProject.cache(project).customerHandler.getQueueQueue().add(s);
                                 for (ChannelHandlerContext context : customerCache.values()) {
                                     while (!active) {
                                         try {
@@ -113,7 +118,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                                         }
                                     }
 //                                        sysMessage(ChannelUtils.localHost(context) + ":" + ChannelUtils.localPort(context) + "服务端 向" + ChannelUtils.remoteHost(context) + ":" + ChannelUtils.remotePort(context) + "发送信息, msg = " + s);
-                                    executor.execute(() -> {
+                                    MyProject.cache(project).executor.execute(() -> {
                                         try {
                                             context.writeAndFlush(Unpooled.copiedBuffer((JSON.toJSONString(s) + "" + System.getProperty("line.separator")).getBytes("UTF-8")));
                                         } catch (UnsupportedEncodingException e) {

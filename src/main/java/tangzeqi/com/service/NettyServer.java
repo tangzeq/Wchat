@@ -11,20 +11,19 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-import lombok.SneakyThrows;
+import tangzeqi.com.project.MyProject;
 import tangzeqi.com.utils.NetUtils;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static tangzeqi.com.service.ChatService.*;
-
 /**
  * 功能描述：服务端
  * 作者：唐泽齐
  */
 public class NettyServer {
+    private final String project;
     private volatile NioEventLoopGroup accpt = new NioEventLoopGroup();
     private volatile NioEventLoopGroup message = new NioEventLoopGroup();
     private volatile boolean open = false;
@@ -32,20 +31,24 @@ public class NettyServer {
     private volatile Channel channel;
     private volatile ServerBootstrap server = new ServerBootstrap();
 
+    public NettyServer(String project) {
+        this.project = project;
+    }
+
     public int makeServer(String host, AtomicInteger port, ServerHandler serverHandler) throws Throwable {
-        if (!NetUtils.port(port.get())) return port.get();
+        if (!NetUtils.port(project,port.get())) return port.get();
         serverHandler.setServerCache(host + ":" + port);
-        sysMessage("尝试创建聊天室 IP = " + host + ", 端口号 = " + port);
+        MyProject.cache(project).sysMessage("尝试创建聊天室 IP = " + host + ", 端口号 = " + port);
         serverHandler.host = host;
         serverHandler.port = port.get();
         serverHandler.makeonLine();
         try {
             if (open) {
-                sysMessage("服务端更新绑定至 " + port);
+                MyProject.cache(project).sysMessage("服务端更新绑定至 " + port);
                 serverHandler.clear();
                 channel = server.bind(port.get()).sync().channel();
                 serverHandler.setServerCache(host + ":" + port);
-                startStatus(true);
+                MyProject.cache(project).startStatus(true);
                 channel.closeFuture().sync();
                 return port.get();
             }
@@ -65,20 +68,20 @@ public class NettyServer {
                     .bind(port.get()).sync().channel();
             port.set(((InetSocketAddress) channel.localAddress()).getPort());
             serverHandler.port = port.get();
-            sysMessage("当前服务 IP = " + host + ", 端口号 = " + port);
-            startStatus(true);
+            MyProject.cache(project).sysMessage("当前服务 IP = " + host + ", 端口号 = " + port);
+            MyProject.cache(project).startStatus(true);
             channel.closeFuture().sync();
             return port.get();
         } catch (InterruptedException e) {
             open = false;
             server = new ServerBootstrap();
-            startStatus(false);
+            MyProject.cache(project).startStatus(false);
             Thread.currentThread().interrupt();
             e.printStackTrace();
         } finally {
 //            accpt.shutdownGracefully().sync();
 //            message.shutdownGracefully().sync();
-            startStatus(false);
+            MyProject.cache(project).startStatus(false);
         }
         return port.get();
     }
@@ -86,7 +89,7 @@ public class NettyServer {
     public void out() {
         try {
             channel.close();
-            for (ChannelHandlerContext value : serverHandler.customerCache.values()) {
+            for (ChannelHandlerContext value : MyProject.cache(project).serverHandler.customerCache.values()) {
                 value.close();
             }
         } catch (Throwable e) {
@@ -107,9 +110,9 @@ public class NettyServer {
 
     public static void main(String[] args) {
         try {
-            NettyServer server = new NettyServer();
+            NettyServer server = new NettyServer("");
             AtomicInteger port = new AtomicInteger(0);
-            server.makeServer("192.168.0.158", port, new ServerHandler());
+            server.makeServer("192.168.0.158", port, new ServerHandler(""));
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }

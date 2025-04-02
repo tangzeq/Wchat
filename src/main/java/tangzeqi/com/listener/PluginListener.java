@@ -2,10 +2,10 @@ package tangzeqi.com.listener;
 
 import com.intellij.ide.plugins.DynamicPluginListener;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManagerCore;
-import com.intellij.openapi.updateSettings.impl.pluginsAdvertisement.PluginsAdvertiser;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import org.jetbrains.annotations.NotNull;
-import tangzeqi.com.service.ChatService;
+import tangzeqi.com.project.MyProject;
 
 public class PluginListener implements DynamicPluginListener {
     @Override
@@ -16,7 +16,9 @@ public class PluginListener implements DynamicPluginListener {
     @Override
     public void beforePluginUnload(@NotNull IdeaPluginDescriptor pluginDescriptor, boolean isUpdate) {
         System.out.println("beforePluginUnload pluginDescriptor = " + pluginDescriptor + ", isUpdate = " + isUpdate);
-        ChatService.shutDown();
+        for (Project project : ProjectManager.getInstance().getOpenProjects()) {
+            MyProject.cache(project.getName()).shutDown();
+        }
     }
 
     @Override

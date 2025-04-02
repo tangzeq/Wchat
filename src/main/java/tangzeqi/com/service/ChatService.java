@@ -18,28 +18,31 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ChatService {
-    public static Project project;
-    public static boolean start;
-    public static boolean connect;
-    public static ChatPanel chat;
-    public static ConfigPanel config;
-    public static HomePanel home;
-    public static String serverIp;
-    public static String serverPort;
-    public static String userName;
-    public static String connectIp;
-    public static String connectPort;
+    public final Project project;
+    public boolean start;
+    public boolean connect;
+    public ChatPanel chat;
+    public ConfigPanel config;
+    public HomePanel home;
+    public String serverIp;
+    public String serverPort;
+    public String userName;
+    public String connectIp;
+    public String connectPort;
 
-    public static volatile boolean mqtt;
-    public static volatile String mqttroom;
-    public static volatile ToolWindow toolWindow;
+    public volatile boolean mqtt;
+    public volatile String mqttroom;
+    public volatile ToolWindow toolWindow;
 
-    private static volatile NettyServer server = new NettyServer();
-    public static volatile ServerHandler serverHandler = new ServerHandler();
-    private static volatile NettyCustomer customer = new NettyCustomer();
-    public static volatile CustomerHandler customerHandler = new CustomerHandler();
-    public static volatile Bootstrap customerBoot = new Bootstrap();
-    public static volatile ThreadPoolExecutor executor = new ThreadPoolExecutor(
+    private volatile NettyServer server;
+    public volatile ServerHandler serverHandler;
+    private volatile NettyCustomer customer;
+    public volatile CustomerHandler customerHandler;
+    public volatile MqttService mqttService;
+    public volatile Bootstrap customerBoot = new Bootstrap();
+
+
+    public volatile ThreadPoolExecutor executor = new ThreadPoolExecutor(
             Runtime.getRuntime().availableProcessors() * 2,// 设置核心线程数
             Runtime.getRuntime().availableProcessors() * 2,// 设置最大线程数
             1000 * 60,// 设置线程活跃时间
@@ -47,17 +50,26 @@ public class ChatService {
             new ArrayBlockingQueue<>(1000)
     );
 
+    public ChatService(Project project) {
+        this.project = project;
+        server = new NettyServer(project.getName());
+        serverHandler = new ServerHandler(project.getName());
+        customer = new NettyCustomer(project.getName());
+        customerHandler = new CustomerHandler(project.getName());
+        mqttService = new MqttService(project.getName());
+    }
+
     /**
      * 启动本地服务
      */
-    public static void start() {
+    public void start() {
         if (!start) {
             sysMessage("正在启动聊天室");
             executor.execute(() -> {
                 try {
                     server.makeServer(serverIp, new AtomicInteger(Integer.parseInt(serverPort)), serverHandler);
                 } catch (Throwable throwable) {
-                    ChatService.start = true;
+                    start = true;
                     throwable.printStackTrace();
                     sysMessage("启动失败");
                     startStatus(false);
@@ -69,30 +81,30 @@ public class ChatService {
         }
     }
 
-    public static void startStatus(Boolean onOff) {
-        if (ChatService.start == onOff) return;
+    public void startStatus(Boolean onOff) {
+        if (start == onOff) return;
         if (onOff) {
             config.serverStatus(true, "关闭聊天室");
             sysMessage("本地聊天室已启动");
-            ChatService.start = true;
+            start = true;
         } else {
             config.serverStatus(true, "启动聊天室");
             sysMessage("本地聊天室已关闭");
-            ChatService.start = false;
+            start = false;
         }
     }
 
     /**
      * 项目连接
      */
-    public static void connect() {
+    public void connect() {
         if (!connect) {
             sysMessage("正在加入聊天室");
             executor.execute(() -> {
                 try {
                     customer.makerCustomer(connectIp, Integer.parseInt(connectPort), customerHandler);
                 } catch (Throwable e) {
-                    ChatService.connect = true;
+                    connect = true;
                     sysMessage("连接失败");
                     connectStatus(false);
                     e.printStackTrace();
@@ -104,16 +116,16 @@ public class ChatService {
         }
     }
 
-    public static void connectStatus(Boolean onOff) {
-        if (ChatService.connect == onOff) return;
+    public void connectStatus(Boolean onOff) {
+        if (connect == onOff) return;
         if (onOff) {
             config.connectStatus(true, "退出聊天室");
             sysMessage(userName + "已加入聊天室");
-            ChatService.connect = true;
+            connect = true;
         } else {
             config.connectStatus(true, "进入聊天室");
             sysMessage(userName + "已退出聊天室");
-            ChatService.connect = false;
+            connect = false;
         }
     }
 
@@ -122,7 +134,7 @@ public class ChatService {
      *
      * @param m 信息
      */
-    public static void sysMessage(String m) {
+    public void sysMessage(String m) {
         if (ObjectUtils.isNotEmpty(config)) {
             config.addSysMessage(m, "系统");
         }
@@ -134,15 +146,15 @@ public class ChatService {
      * @param m    信息
      * @param root 用户
      */
-    public static void chatMessage(String m, String root) {
+    public void chatMessage(String m, String root) {
         if (ObjectUtils.isNotEmpty(chat)) {
             chat.addMessage(m, root);
         }
     }
 
-    public static void openFileLine(String file, int line) {
-        VirtualFile virtualFile = ChatService.project.getBaseDir().findFileByRelativePath(file);
-        FileEditorManager manager = FileEditorManager.getInstance(ChatService.project);
+    public void openFileLine(String file, int line) {
+        VirtualFile virtualFile = project.getBaseDir().findFileByRelativePath(file);
+        FileEditorManager manager = FileEditorManager.getInstance(project);
         manager.openFile(virtualFile, true);
         CaretModel caretModel = manager.getSelectedTextEditor().getCaretModel();
         caretModel.moveToLogicalPosition(new LogicalPosition(line, 0));
@@ -151,26 +163,26 @@ public class ChatService {
         caretModel.moveCaretRelatively(-1, 0, false, true, true);
     }
 
-    public static void shutDown() {
+    public void shutDown() {
         System.out.println("Wchat is shutDowning...");
-        executor.execute(()->server.shutDown());
-        executor.execute(()->customer.shutDown());
-        executor.execute(()->MqttService.shutDowm());
+        executor.execute(() -> server.shutDown());
+        executor.execute(() -> customer.shutDown());
+        executor.execute(() -> mqttService.shutDowm());
         System.out.println("Wchat is shutDowned");
     }
 
-    public static void sendChat(String message) {
+    public void sendChat(String message) {
         chat.inputFieldPost(message);
     }
 
-    public static void mqttconnect() {
+    public void mqttconnect() {
         if (!mqtt) {
             sysMessage("正在启用公网频道");
             executor.execute(() -> {
                 try {
-                    MqttService.start(mqttroom, userName);
+                    mqttService.start(mqttroom, userName);
                 } catch (Throwable e) {
-                    ChatService.mqtt = true;
+                    mqtt = true;
                     sysMessage("启用公网频道失败");
                     mqttStatus(false);
                     e.printStackTrace();
@@ -178,11 +190,11 @@ public class ChatService {
             });
         } else {
             sysMessage("正在关闭公网频道");
-            executor.execute(() -> MqttService.out());
+            executor.execute(() -> mqttService.out());
         }
     }
 
-    public static void mqttStatus(Boolean onOff) {
+    public void mqttStatus(Boolean onOff) {
         if (mqtt == onOff) return;
         if (onOff) {
             sysMessage("关闭聊天室");
@@ -207,7 +219,7 @@ public class ChatService {
         mqtt = onOff;
     }
 
-    public static void showContent(String name) {
+    public void showContent(String name) {
         toolWindow.getContentManager().setSelectedContent(toolWindow.getContentManager().findContent(name));
     }
 }
