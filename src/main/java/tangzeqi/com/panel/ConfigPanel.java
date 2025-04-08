@@ -32,6 +32,8 @@ public class ConfigPanel extends JPanel {
 
     private GridBagConstraints gbc = new GridBagConstraints();
 
+    private final JButton updconnect;
+
     public ConfigPanel(String project) {
         super(new BorderLayout());
         this.project = project;
@@ -54,6 +56,7 @@ public class ConfigPanel extends JPanel {
         mqttroom.setText(topic);
         mqtt = new JButton("开启公网聊天");
         userArea = new JTextArea();
+        updconnect = new JButton("启用局域网广播");
         ///////////////////系统窗口////////////////////
         sysPanel();
         /////////////////////配置窗口///////////////////////
@@ -137,9 +140,36 @@ public class ConfigPanel extends JPanel {
         gbc.gridy = 6;
         gbc.gridx = 0;
         config.add(connect, gbc);
+        //局域网广播
+        updconnect.addActionListener(this::updconnectStart);
+        initSize(updconnect, width, height);
+        gbc = resetGBC(gbc);
+        gbc.gridy = 7;
+        gbc.gridx = 0;
+        config.add(updconnect, gbc);
+
         config.setPreferredSize(new Dimension(width, gbc.gridy * height));
         config.setMinimumSize(new Dimension(width, gbc.gridy * height));
         add(config, BorderLayout.WEST);
+    }
+
+    private void updconnectStart(ActionEvent actionEvent) {
+        String name = userName.getText();
+        if (ObjectUtils.isEmpty(name)) {
+            MyProject.cache(project).sysMessage("请填写聊天您的昵称！");
+            userName.requestFocusInWindow();
+            return;
+        }
+        MyProject.cache(project).userName = name.trim();
+        updconnectStatus(false, "处理中。。。");
+        MyProject.cache(project).updconnect();
+    }
+
+    public void updconnectStatus(Boolean cenClick, String text) {
+        if (ObjectUtils.isNotEmpty(updconnect)) {
+            updconnect.setEnabled(cenClick);
+            updconnect.setText(text);
+        }
     }
 
 

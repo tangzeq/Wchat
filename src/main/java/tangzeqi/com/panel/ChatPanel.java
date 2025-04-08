@@ -108,7 +108,7 @@ public class ChatPanel extends JPanel {
 
     private void sendMessage(ActionEvent e) {
         String message = inputField.getText().trim();
-        if (!MyProject.cache(project).connect && !MyProject.cache(project).mqtt) {
+        if (!MyProject.cache(project).connect && !MyProject.cache(project).mqtt && !MyProject.cache(project).upd) {
             addMessage("未加入聊天室或未启用公网频道!", "系统");
         } else if (!message.isEmpty()) {
             inputField.setEnabled(false);
@@ -122,6 +122,12 @@ public class ChatPanel extends JPanel {
             }
             if (MyProject.cache(project).mqtt) {
                 MyProject.cache(project).mqttService.message(message);
+            }
+            if (MyProject.cache(project).upd) {
+                TextMessage textMessage = new TextMessage();
+                textMessage.setMessage(message);
+                textMessage.setName(MyProject.cache(project).userName);
+                MyProject.cache(project).updService.send(textMessage);
             }
             inputField.setText("");
             sendButton.setText("发送");

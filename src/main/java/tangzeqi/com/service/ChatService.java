@@ -41,6 +41,9 @@ public class ChatService {
     public volatile MqttService mqttService;
     public volatile Bootstrap customerBoot = new Bootstrap();
 
+    public volatile boolean upd = false;
+    public volatile UPDService updService;
+
 
     public volatile ThreadPoolExecutor executor = new ThreadPoolExecutor(
             Runtime.getRuntime().availableProcessors() * 2,// 设置核心线程数
@@ -57,6 +60,10 @@ public class ChatService {
         customer = new NettyCustomer(project.getName());
         customerHandler = new CustomerHandler(project.getName());
         mqttService = new MqttService(project.getName());
+        try {
+            updService = new UPDService(project.getName());
+        } catch (Throwable e) {
+        }
     }
 
     /**
@@ -168,6 +175,7 @@ public class ChatService {
         executor.execute(() -> server.shutDown());
         executor.execute(() -> customer.shutDown());
         executor.execute(() -> mqttService.shutDowm());
+        executor.execute(() -> updService.shutDowm());
         System.out.println("Wchat is shutDowned");
     }
 
@@ -218,6 +226,31 @@ public class ChatService {
         }
         mqtt = onOff;
     }
+
+    public void updconnect() {
+        if (!upd) {
+            sysMessage("正在启用局域网广播模式");
+            executor.execute(() -> {
+                try {
+                    updService.start();
+                    upd = true;
+                    config.updconnectStatus(true, "关闭局域网广播模式");
+                    sysMessage("开始感知");
+                } catch (Throwable e) {
+                    upd = false;
+                    sysMessage("启用公网局域网广播模式失败");
+                    config.updconnectStatus(true, "启用局域网广播模式");
+                    e.printStackTrace();
+                }
+            });
+        } else {
+            sysMessage("正在关闭局域网广播模式");
+            upd = false;
+            config.updconnectStatus(true, "启用局域网广播模式");
+            executor.execute(() -> updService.shutDowm());
+        }
+    }
+
 
     public void showContent(String name) {
         toolWindow.getContentManager().setSelectedContent(toolWindow.getContentManager().findContent(name));

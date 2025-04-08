@@ -18,6 +18,20 @@
         <em>2. Right-click to transmit anchor points to the chat interface.</em><br>
         <em>3. Access MQTT for public network chat.</em><br>
     ]]></description>
+    <change-notes><![CDATA[
+        <h2>2025.04.02</h2>
+        <ul>
+            <li>架构优化--对每个项目进行环境隔离</li>
+        </ul>
+        <h2>2025.03.12</h2>
+        <ul>
+            <li>界面优化--调整布局，预留首页</li>
+        </ul>
+        <h2>2025.04.08</h2>
+        <ul>
+            <li>功能扩展--新增局域网广播模式</li>
+        </ul>
+    ]]></change-notes>
 <!--    <applicationListeners>-->
 <!--        <listener class="tangzeqi.com.listener.IDEListener"-->
 <!--                  topic="com.intellij.openapi.project.ProjectManagerListener"/>-->
