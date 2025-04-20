@@ -71,22 +71,22 @@ public class ConfigPanel extends JPanel {
         int width = 300;
         int height = 30;
         JPanel config = new JPanel(new GridBagLayout());
-        //MQTT频道编号
-        mqttroom.setEditable(true);
-        mqttroom.setToolTipText("公网频道编号");
-        mqttroom.getDocument().addDocumentListener(textLimit(mqttroom, 20));
-        initSize(mqttroom, width, height);
-        gbc = resetGBC(gbc);
-        gbc.gridy = 0;
-        gbc.gridx = 0;
-        config.add(mqttroom, gbc);
-        //MQTT启动
-        mqtt.addActionListener(this::mqttStart);
-        initSize(mqtt, width, height);
-        gbc = resetGBC(gbc);
-        gbc.gridy = 1;
-        gbc.gridx = 0;
-        config.add(mqtt, gbc);
+//        //MQTT频道编号
+//        mqttroom.setEditable(true);
+//        mqttroom.setToolTipText("公网频道编号");
+//        mqttroom.getDocument().addDocumentListener(textLimit(mqttroom, 20));
+//        initSize(mqttroom, width, height);
+//        gbc = resetGBC(gbc);
+//        gbc.gridy = 0;
+//        gbc.gridx = 0;
+//        config.add(mqttroom, gbc);
+//        //MQTT启动
+//        mqtt.addActionListener(this::mqttStart);
+//        initSize(mqtt, width, height);
+//        gbc = resetGBC(gbc);
+//        gbc.gridy = 1;
+//        gbc.gridx = 0;
+//        config.add(mqtt, gbc);
         //系统行
         JPanel server = new JPanel(new BorderLayout());
         initSize(server, width, height);
@@ -113,6 +113,7 @@ public class ConfigPanel extends JPanel {
         userName.setEditable(true);
         userName.setToolTipText("聊天室用户昵称");
         userName.getDocument().addDocumentListener(textLimit(userName, 100));
+        userName.addActionListener(this::userNameListener);
         initSize(userName, width, height);
         gbc = resetGBC(gbc);
         gbc.gridy = 4;
@@ -140,17 +141,24 @@ public class ConfigPanel extends JPanel {
         gbc.gridy = 6;
         gbc.gridx = 0;
         config.add(connect, gbc);
-        //局域网广播
-        updconnect.addActionListener(this::updconnectStart);
-        initSize(updconnect, width, height);
-        gbc = resetGBC(gbc);
-        gbc.gridy = 7;
-        gbc.gridx = 0;
-        config.add(updconnect, gbc);
+//        //局域网广播
+//        updconnect.addActionListener(this::updconnectStart);
+//        initSize(updconnect, width, height);
+//        gbc = resetGBC(gbc);
+//        gbc.gridy = 7;
+//        gbc.gridx = 0;
+//        config.add(updconnect, gbc);
 
         config.setPreferredSize(new Dimension(width, gbc.gridy * height));
         config.setMinimumSize(new Dimension(width, gbc.gridy * height));
         add(config, BorderLayout.WEST);
+    }
+
+    private void userNameListener(ActionEvent actionEvent) {
+        String name = userName.getText();
+        if(ObjectUtils.isNotEmpty(name) && ObjectUtils.isNotEmpty(name.trim())) {
+            MyProject.cache(project).userName = name.trim();
+        }
     }
 
     private void updconnectStart(ActionEvent actionEvent) {

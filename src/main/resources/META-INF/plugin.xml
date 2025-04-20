@@ -31,18 +31,31 @@
         <ul>
             <li>功能扩展--新增局域网广播模式</li>
         </ul>
+        <h2>2025.04.14</h2>
+        <ul>
+            <li>功能扩展--新增协同编辑</li>
+        </ul>
+        <h2>2025.04.18</h2>
+        <ul>
+            <li>功能扩展--新增协同编辑</li>
+            <li>功能调整--取消局域网广播、取消公网聊天</li>
+        </ul>
     ]]></change-notes>
-<!--    <applicationListeners>-->
-<!--        <listener class="tangzeqi.com.listener.IDEListener"-->
-<!--                  topic="com.intellij.openapi.project.ProjectManagerListener"/>-->
-<!--        <listener class="tangzeqi.com.listener.PluginListener"-->
-<!--                  topic="com.intellij.ide.plugins.DynamicPluginListener"/>-->
-<!--    </applicationListeners>-->
+    <applicationListeners>
+        <listener class="tangzeqi.com.listener.IDEListener"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
+        <listener class="tangzeqi.com.listener.PluginListener"
+                  topic="com.intellij.ide.plugins.DynamicPluginListener"/>
+    </applicationListeners>
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="WChat" anchor="bottom" icon="AllIcons.Actions.Edit" factoryClass="tangzeqi.com.extensions.MyToolWindowFactory" />
+        <postStartupActivity implementation="tangzeqi.com.extensions.SynergyStartupActivity" />
     </extensions>
-    <actions>
+    <actions>y
         <action id="tangzeqi.com.action.CodeLineToChat" class="tangzeqi.com.action.CodeLineToChat" text="发送到Wchat">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </action>
+        <action id="tangzeqi.com.action.SynergyAction" class="tangzeqi.com.action.SynergyAction" text="协同编辑">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
     </actions>

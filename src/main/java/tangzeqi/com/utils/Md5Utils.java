@@ -22,8 +22,8 @@ public class Md5Utils {
                 str[k++] = hexDigits[byte0 >>> 4 & 0xf];
                 str[k++] = hexDigits[byte0 & 0xf];
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
         }
         return new String(str);
     }
@@ -32,8 +32,8 @@ public class Md5Utils {
         String result = "";
         try {
             result = getMD5(value.getBytes(encode));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
         }
 
         return result;

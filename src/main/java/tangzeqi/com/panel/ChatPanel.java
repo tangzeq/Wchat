@@ -118,7 +118,7 @@ public class ChatPanel extends JPanel {
                 TextMessage textMessage = new TextMessage();
                 textMessage.setMessage(message);
                 textMessage.setName(MyProject.cache(project).userName);
-                MyProject.cache(project).customerHandler.sendMessage(textMessage);
+                MyProject.cache(project).customerHandler.send(textMessage);
             }
             if (MyProject.cache(project).mqtt) {
                 MyProject.cache(project).mqttService.message(message);

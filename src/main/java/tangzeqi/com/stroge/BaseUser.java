@@ -1,5 +1,6 @@
 package tangzeqi.com.stroge;
 
+import com.sun.jna.platform.win32.Guid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,11 @@ public class BaseUser implements Serializable {
      * 用户ID
      */
     private Long userId;
+
+    /**
+     * 全局唯一识别号
+     */
+    private String unicode;
 
     /**
      * 用户名称

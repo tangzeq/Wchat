@@ -72,18 +72,17 @@ public class NettyServer {
             MyProject.cache(project).startStatus(true);
             channel.closeFuture().sync();
             return port.get();
-        } catch (InterruptedException e) {
+        } catch (Throwable e) {
             open = false;
             server = new ServerBootstrap();
             MyProject.cache(project).startStatus(false);
             Thread.currentThread().interrupt();
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
 //            accpt.shutdownGracefully().sync();
 //            message.shutdownGracefully().sync();
             MyProject.cache(project).startStatus(false);
         }
-        return port.get();
     }
 
     public void out() {
@@ -93,7 +92,7 @@ public class NettyServer {
                 value.close();
             }
         } catch (Throwable e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -104,7 +103,7 @@ public class NettyServer {
             accpt.shutdownGracefully();
             message.shutdownGracefully();
         } catch (Throwable e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

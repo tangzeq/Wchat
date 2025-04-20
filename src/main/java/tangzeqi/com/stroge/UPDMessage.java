@@ -18,4 +18,5 @@ public class UPDMessage extends BaseUser implements Serializable {
      * 验证
      */
     private String token;
+    private String mac;
 }

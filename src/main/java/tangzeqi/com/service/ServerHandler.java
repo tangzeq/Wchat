@@ -10,13 +10,12 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.ObjectUtils;
 import tangzeqi.com.project.MyProject;
-import tangzeqi.com.stroge.BaseMessage;
-import tangzeqi.com.stroge.NodeNet;
-import tangzeqi.com.stroge.TextMessage;
+import tangzeqi.com.stroge.*;
 import tangzeqi.com.utils.ChannelUtils;
 import tangzeqi.com.utils.MessageUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,7 +68,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             if ("0".equals(bm.getType().toString())) {
                 customerHost.put(ctx.channel().id().toString(), ((TextMessage) bm.getMessage()).getMessage());
             } else if (ObjectUtils.isEmpty(messageCache.getIfPresent(bm.getId()))) {
-                message.add(bm);
+                bm.setChanleId(ctx.channel().id().toString());
+                send(bm);
             }
         }
     }
@@ -83,14 +83,14 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                 while (true) {
                     try {
                         Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
                     }
                     for (ChannelHandlerContext context : customerCache.values()) {
                         try {
                             context.writeAndFlush(Unpooled.copiedBuffer((System.getProperty("line.separator")).getBytes("UTF-8")));
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
+                        } catch (Throwable e) {
+                            throw new RuntimeException(e);
                         }
                     }
                 }
@@ -99,12 +99,12 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                 while (true) {
                     try {
                         Thread.sleep(0);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
                     }
                     //信息
                     while (message.size() > 0) {
-                        BaseMessage s = message.poll();
+                        BaseMessage s = message.remove();
                         if (!ObjectUtils.isEmpty(s)) {
                             if (ObjectUtils.isEmpty(messageCache.getIfPresent(s.getId()))) {
                                 messageCache.put(s.getId(), 1);
@@ -113,16 +113,16 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                                     while (!active) {
                                         try {
                                             Thread.sleep(50);
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
+                                        } catch (Throwable e) {
+                                            throw new RuntimeException(e);
                                         }
                                     }
 //                                        sysMessage(ChannelUtils.localHost(context) + ":" + ChannelUtils.localPort(context) + "服务端 向" + ChannelUtils.remoteHost(context) + ":" + ChannelUtils.remotePort(context) + "发送信息, msg = " + s);
                                     MyProject.cache(project).executor.execute(() -> {
                                         try {
                                             context.writeAndFlush(Unpooled.copiedBuffer((JSON.toJSONString(s) + "" + System.getProperty("line.separator")).getBytes("UTF-8")));
-                                        } catch (UnsupportedEncodingException e) {
-                                            e.printStackTrace();
+                                        } catch (Throwable e) {
+                                            throw new RuntimeException(e);
                                         }
                                     });
                                 }
@@ -153,6 +153,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             serverCache.remove(s);
         } catch (Throwable e) {
             serverCache.remove(s.hashCode() + "", s);
+            throw new RuntimeException(e);
         }
         return serverCache;
     }
@@ -167,6 +168,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 //            customerHost.remove(s);
 //        } catch (Throwable e) {
 //            customerHost.remove(s.hashCode()+"");
+//    throw new RuntimeException(e);
 //        }
 //        return customerHost;
 //    }
@@ -200,4 +202,22 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         serverCache.clear();
         customerHost.clear();
     }
+    synchronized public void send(BaseMessage message) {
+        for (ChannelHandlerContext context : customerCache.values()) {
+            while (!active) {
+                try {
+                    Thread.sleep(0);
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            try {
+                context.writeAndFlush(Unpooled.copiedBuffer((JSON.toJSONString(message) + System.getProperty("line.separator")).getBytes(StandardCharsets.UTF_8)));
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+
 }

@@ -65,12 +65,12 @@ public class NettyCustomer {
             MyProject.cache(project).sysMessage("已接入聊天室" + " IP " + inetHost + ", 端口号 " + port);
             MyProject.cache(project).connectStatus(true);
             channel.closeFuture().sync();
-        } catch (InterruptedException e) {
+        } catch (Throwable e) {
             open = false;
             MyProject.cache(project).customerBoot = new Bootstrap();
             MyProject.cache(project).connectStatus(false);
             Thread.currentThread().interrupt();
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
 //            message.shutdownGracefully().sync();
             MyProject.cache(project).connectStatus(false);
@@ -84,7 +84,7 @@ public class NettyCustomer {
                 remote.close();
             }
         } catch (Throwable e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -93,7 +93,7 @@ public class NettyCustomer {
 //            message.shutdownGracefully().sync();
             message.shutdownGracefully();
         } catch (Throwable e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

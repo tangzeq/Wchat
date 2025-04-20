@@ -35,7 +35,7 @@ public class PanelUtils {
                             text.setText(text.getText(0, len));
                             text.setSelectionStart(text.getText().length());
                             text.setSelectionEnd(text.getText().length());
-                        } catch (BadLocationException ex) {
+                        } catch (Throwable ex) {
                             throw new RuntimeException(ex);
                         }
                     });

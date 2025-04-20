@@ -9,16 +9,16 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.ObjectUtils;
+import tangzeqi.com.listener.MyDocumentListener;
 import tangzeqi.com.project.MyProject;
 import tangzeqi.com.stroge.*;
 import tangzeqi.com.utils.ChannelUtils;
 import tangzeqi.com.utils.MessageUtils;
+import tangzeqi.com.utils.NetUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -33,10 +33,10 @@ import static tangzeqi.com.utils.ChannelUtils.remotePort;
 @ChannelHandler.Sharable
 public class CustomerHandler extends ChannelInboundHandlerAdapter {
     private final String project;
-    static volatile public Cache<Long, Object> messageCache = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofSeconds(60)).build();
-    static volatile ConcurrentLinkedQueue<BaseMessage> queue = new ConcurrentLinkedQueue<>();
-    static volatile Map<String, ChannelHandlerContext> remoteCache = new ConcurrentHashMap<>();
-    static volatile int online = 0;
+    private volatile Cache<Long, Object> messageCache = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofSeconds(60)).build();
+    private volatile ConcurrentLinkedQueue<BaseMessage> queue = new ConcurrentLinkedQueue<>();
+    private volatile Map<String, ChannelHandlerContext> remoteCache = new ConcurrentHashMap<>();
+    private volatile int online = 0;
 
     public CustomerHandler(String project) {
         this.project = project;
@@ -65,11 +65,10 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         while (queue.size() > 0) {
-            BaseMessage s = queue.poll();
+            BaseMessage s = queue.remove();
             if (!ObjectUtils.isEmpty(s) && remoteCache.size() > 0) {
                 if (ObjectUtils.isEmpty(s.getId())) {
                     s.setId(ChannelUtils.makeId(remoteCache.values().stream().findFirst().get()));
-                    s.setChanleId(remoteCache.values().stream().findFirst().get().channel().id().toString());
                 }
                 if (digestion(s)) continue;
                 //推送信息到本地服务
@@ -95,9 +94,7 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
         if (!ObjectUtils.isEmpty(msg) && !"\r\n".equals(msg)) {
             BaseMessage bm = MessageUtils.resolve(msg);
             messageCache.put(bm.getId(), 1);
-            if (bm.getType().compareTo(5) == 0) {
-                MyProject.cache(project).chatMessage(((TextMessage) bm.getMessage()).getMessage(), bm.getMessage().getName());
-            }
+
 //            MessageStorage.add(bm);
             if (!digestion(bm)) queue.add(bm);
         }
@@ -139,9 +136,30 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
                 }
                 break;
             }
+            case 5:
+                shunt(bm.getMessage());
+                rest = true;
+                break;
         }
         return rest;
     }
+
+    private void shunt(BaseUser mes) {
+        //聊天信息
+        if(mes instanceof TextMessage) {
+            MyProject.cache(project).chatMessage(((TextMessage) mes).getMessage(), mes.getName());
+        }
+        //协同编辑
+        if(mes instanceof SynergyMessage) {
+            ChatService cache = MyProject.cache(((SynergyMessage) mes).getProject());
+            if (cache != null
+                    && project.equalsIgnoreCase(((SynergyMessage) mes).getProject())
+            ) {
+                MyDocumentListener.syne(project, ((SynergyMessage) mes));
+            }
+        }
+    }
+
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
@@ -172,12 +190,24 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
         MyProject.cache(project).serverHandler.active = true;
     }
 
-
-    public BaseMessage sendMessage(BaseUser mes) {
-        BaseMessage message = BaseMessage.builder().type(5).message(mes).build();
-        queue.add(message);
-        return message;
+    synchronized public void send(BaseUser b) {
+        BaseMessage message = BaseMessage.builder().id(System.nanoTime()).type(5).message(b).build();
+        for (ChannelHandlerContext context : remoteCache.values()) {
+            while (!MyProject.cache(project).serverHandler.active) {
+                try {
+                    Thread.sleep(0);
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            try {
+                context.writeAndFlush(Unpooled.copiedBuffer((JSON.toJSONString(message) + System.getProperty("line.separator")).getBytes(StandardCharsets.UTF_8)));
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
+
 
     public ConcurrentLinkedQueue<BaseMessage> getQueueQueue() {
         return queue;
@@ -220,7 +250,7 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
                                 context.writeAndFlush(Unpooled.copiedBuffer((System.getProperty("line.separator")).getBytes("UTF-8")));
                             }
                         } catch (Throwable e) {
-                            e.printStackTrace();
+                            throw new RuntimeException(e);
                         }
                     }
                 }

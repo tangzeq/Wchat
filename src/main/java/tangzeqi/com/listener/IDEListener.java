@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import tangzeqi.com.project.MyProject;
 
 public class IDEListener implements ProjectManagerListener {
+
     @Override
     public void projectOpened(@NotNull Project project) {
         System.out.println("Wchat is executing the ProjectManagerListener Listener listener : projectOpened");

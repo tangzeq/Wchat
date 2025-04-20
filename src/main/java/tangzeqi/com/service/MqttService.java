@@ -5,6 +5,7 @@ import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import tangzeqi.com.project.MyProject;
 
+
 public class MqttService {
     private final String project;
     // 公共 MQTT 代理的地址
@@ -72,9 +73,9 @@ public class MqttService {
             }
         } catch (Throwable e) {
             Thread.currentThread().interrupt();
-            e.printStackTrace();
             open = false;
             MyProject.cache(project).mqtt = false;
+            throw new RuntimeException(e);
         }
     }
 
@@ -86,7 +87,7 @@ public class MqttService {
             }
         } catch (Throwable e) {
             MyProject.cache(project).sysMessage("公网信息发送失败");
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -96,7 +97,7 @@ public class MqttService {
             client.disconnect();
             client = null;
         } catch (Throwable e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -104,8 +105,8 @@ public class MqttService {
         try {
             client.unsubscribe(TOPIC);
             MyProject.cache(project).mqttStatus(false);
-        } catch (MqttException e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
         }
     }
 

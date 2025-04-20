@@ -8,10 +8,12 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import io.netty.bootstrap.Bootstrap;
 import org.apache.commons.lang3.ObjectUtils;
+import tangzeqi.com.listener.MyDocumentListener;
 import tangzeqi.com.panel.ChatPanel;
 import tangzeqi.com.panel.ConfigPanel;
 import tangzeqi.com.panel.HomePanel;
 
+import javax.swing.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +45,7 @@ public class ChatService {
 
     public volatile boolean upd = false;
     public volatile UPDService updService;
+    public volatile MyDocumentListener synListener;
 
 
     public volatile ThreadPoolExecutor executor = new ThreadPoolExecutor(
@@ -63,6 +66,7 @@ public class ChatService {
         try {
             updService = new UPDService(project.getName());
         } catch (Throwable e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -114,7 +118,7 @@ public class ChatService {
                     connect = true;
                     sysMessage("连接失败");
                     connectStatus(false);
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             });
         } else {
@@ -193,7 +197,7 @@ public class ChatService {
                     mqtt = true;
                     sysMessage("启用公网频道失败");
                     mqttStatus(false);
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             });
         } else {
@@ -240,7 +244,7 @@ public class ChatService {
                     upd = false;
                     sysMessage("启用公网局域网广播模式失败");
                     config.updconnectStatus(true, "启用局域网广播模式");
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             });
         } else {
@@ -250,7 +254,6 @@ public class ChatService {
             executor.execute(() -> updService.shutDowm());
         }
     }
-
 
     public void showContent(String name) {
         toolWindow.getContentManager().setSelectedContent(toolWindow.getContentManager().findContent(name));
