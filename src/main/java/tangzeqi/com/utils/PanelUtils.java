@@ -7,12 +7,11 @@ import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
 import java.awt.*;
 
 public class PanelUtils {
     public static GridBagConstraints resetGBC(@Nullable GridBagConstraints gbc) {
-        if(ObjectUtils.isEmpty(gbc)) gbc = new GridBagConstraints();
+        if (ObjectUtils.isEmpty(gbc)) gbc = new GridBagConstraints();
         gbc.insets = new Insets(0, 0, 0, 0);
         gbc.anchor = GridBagConstraints.LINE_END;
         gbc.fill = GridBagConstraints.NONE;

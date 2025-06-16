@@ -14,14 +14,18 @@ import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.JBColor;
+import org.apache.commons.httpclient.util.DateUtil;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import tangzeqi.com.action.SynergyAction;
 import tangzeqi.com.extensions.SynInLay;
 import tangzeqi.com.project.MyProject;
 import tangzeqi.com.stroge.SynergyMessage;
-import tangzeqi.com.utils.NetUtils;
+import tangzeqi.com.utils.LineMarkerUtils;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MyDocumentListener implements DocumentListener {
@@ -33,12 +37,13 @@ public class MyDocumentListener implements DocumentListener {
     private final String filePath;
     private final String project;
     private final MyDocumentListener listener;
-//    private final SynergyMessage oldMessage;
+    //    private final SynergyMessage oldMessage;
 //    private final SynergyMessage newMessage;
     private volatile SynergyMessage message;
 
-    private final ConcurrentHashMap<String,Long> changed = new ConcurrentHashMap<>();
-    public MyDocumentListener(@NotNull String filePath, @NotNull String project,@NotNull String listCode) {
+    private final ConcurrentHashMap<String, Long> changed = new ConcurrentHashMap<>();
+
+    public MyDocumentListener(@NotNull String filePath, @NotNull String project, @NotNull String listCode) {
         this.filePath = filePath;
         this.listener = this;
         this.project = project;
@@ -64,9 +69,9 @@ public class MyDocumentListener implements DocumentListener {
     public void documentChanged(@NotNull DocumentEvent event) {
 //        if (event.getOldTimeStamp() == oldTimeStamp) {
 //            System.out.println(filePath + " :olded =" + event.getOffset() + " to " + event.getMoveOffset() + " char:" + event.getOldFragment().toString());
-            System.out.println(project + " : "+event+" "+event.getOldTimeStamp());
+        System.out.println(project + " : " + event + " " + event.getOldTimeStamp());
 //            System.out.println("oldTimeStamp =" + oldTimeStamp);
-            MyProject.cache(project).customerHandler.send(message(event.getNewFragment().toString(), event));
+        MyProject.cache(project).customerHandler.send(message(event.getNewFragment().toString(), event));
 //        }
     }
 
@@ -125,7 +130,7 @@ public class MyDocumentListener implements DocumentListener {
                                     !MyProject.cache(projectName).synListener.listCode.equalsIgnoreCase(syn.getUnicode())
                             ) {
                                 MyProject.cache(projectName).synListener.changed.put(syn.getUnicode(), syn.getOldTimeStamp());
-                                System.out.println(projectName+":"+syn);
+                                System.out.println(projectName + ":" + syn);
                                 finalEditor.getDocument().removeDocumentListener(listener);
                                 String str = syn.getStr();
 //                                if (syn.getOldLength() <= 0) {
@@ -133,7 +138,7 @@ public class MyDocumentListener implements DocumentListener {
 //                                } else if (syn.getNewLength() <= 0) {
 //                                    finalEditor.getDocument().deleteString(syn.getStartOffset(), Math.min(syn.getEndOffset() + syn.getOldLength(), finalEditor.getDocument().getTextLength()));
 //                                } else {
-                                    finalEditor.getDocument().replaceString(syn.getStartOffset(), Math.min(syn.getEndOffset() + syn.getOldLength(), finalEditor.getDocument().getTextLength()), str);
+                                finalEditor.getDocument().replaceString(syn.getStartOffset(), Math.min(syn.getEndOffset() + syn.getOldLength(), finalEditor.getDocument().getTextLength()), str);
 //                                }
                                 finalEditor.getDocument().addDocumentListener(listener);
                             }
@@ -147,6 +152,7 @@ public class MyDocumentListener implements DocumentListener {
             throw new RuntimeException(e);
         }
     }
+
     private static void addInlay(@NotNull Editor editor, @NotNull SynergyMessage syn) {
         int offset = editor.getDocument().getLineStartOffset(editor.getDocument().getLineNumber(syn.getStartOffset()));
 //        List<Inlay> inlays = editor.getInlayModel().getBlockElementsForVisualLine(editor.getDocument().getLineNumber(offset), true);
@@ -161,11 +167,13 @@ public class MyDocumentListener implements DocumentListener {
 //                inlay.dispose();
 //            }
 //        }
-        List<Inlay<? extends SynInLay>> inlays = editor.getInlayModel().getBlockElementsInRange(offset-1, offset, SynInLay.class);
+        List<Inlay<? extends SynInLay>> inlays = editor.getInlayModel().getBlockElementsInRange(offset - 1, offset, SynInLay.class);
         for (Inlay<? extends SynInLay> inlay : inlays) {
             inlay.dispose();
         }
-        editor.getInlayModel().addBlockElement(offset, true, true, 0, new SynInLay(syn.getName()));
+        String tip = syn.getName()+"("+ DateUtil.formatDate(new Date(),"yyyy-MM-dd HH:mm:ss") +")";
+        editor.getInlayModel().addBlockElement(offset, true, true, 0, new SynInLay(tip));
+        LineMarkerUtils.changeTips(editor, 0, syn.getName());
     }
 
 }

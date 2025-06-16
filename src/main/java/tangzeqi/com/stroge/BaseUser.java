@@ -1,6 +1,5 @@
 package tangzeqi.com.stroge;
 
-import com.sun.jna.platform.win32.Guid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

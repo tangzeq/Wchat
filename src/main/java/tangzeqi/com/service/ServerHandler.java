@@ -10,11 +10,12 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.ObjectUtils;
 import tangzeqi.com.project.MyProject;
-import tangzeqi.com.stroge.*;
+import tangzeqi.com.stroge.BaseMessage;
+import tangzeqi.com.stroge.NodeNet;
+import tangzeqi.com.stroge.TextMessage;
 import tangzeqi.com.utils.ChannelUtils;
 import tangzeqi.com.utils.MessageUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -202,6 +203,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         serverCache.clear();
         customerHost.clear();
     }
+
     synchronized public void send(BaseMessage message) {
         for (ChannelHandlerContext context : customerCache.values()) {
             while (!active) {

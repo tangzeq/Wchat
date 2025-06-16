@@ -13,7 +13,6 @@ import tangzeqi.com.panel.ChatPanel;
 import tangzeqi.com.panel.ConfigPanel;
 import tangzeqi.com.panel.HomePanel;
 
-import javax.swing.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;

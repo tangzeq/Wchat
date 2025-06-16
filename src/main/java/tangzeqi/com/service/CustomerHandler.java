@@ -14,11 +14,13 @@ import tangzeqi.com.project.MyProject;
 import tangzeqi.com.stroge.*;
 import tangzeqi.com.utils.ChannelUtils;
 import tangzeqi.com.utils.MessageUtils;
-import tangzeqi.com.utils.NetUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -146,11 +148,11 @@ public class CustomerHandler extends ChannelInboundHandlerAdapter {
 
     private void shunt(BaseUser mes) {
         //聊天信息
-        if(mes instanceof TextMessage) {
+        if (mes instanceof TextMessage) {
             MyProject.cache(project).chatMessage(((TextMessage) mes).getMessage(), mes.getName());
         }
         //协同编辑
-        if(mes instanceof SynergyMessage) {
+        if (mes instanceof SynergyMessage) {
             ChatService cache = MyProject.cache(((SynergyMessage) mes).getProject());
             if (cache != null
                     && project.equalsIgnoreCase(((SynergyMessage) mes).getProject())

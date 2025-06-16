@@ -44,6 +44,14 @@ dependencies {
   compileOnly 'org.apache.tika:tika-core:2.9.0'
   annotationProcessor 'org.apache.tika:tika-core:2.9.0'
 
+  implementation 'org.jsonschema2pojo:jsonschema2pojo-core:1.2.2'
+  compileOnly 'org.jsonschema2pojo:jsonschema2pojo-core:1.2.2'
+  annotationProcessor 'org.jsonschema2pojo:jsonschema2pojo-core:1.2.2'
+
+  implementation 'com.github.jsqlparser:jsqlparser:3.2'
+  compileOnly 'com.github.jsqlparser:jsqlparser:3.2'
+  annotationProcessor 'com.github.jsqlparser:jsqlparser:3.2'
+
 }
 compileJava {
   options.encoding = 'UTF-8'
@@ -55,4 +63,3 @@ patchPluginXml {
   sinceBuild = '201.6668.121'
   untilBuild = '241.18034.62'
 }
-

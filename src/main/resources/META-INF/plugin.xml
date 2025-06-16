@@ -40,6 +40,10 @@
             <li>功能扩展--新增协同编辑</li>
             <li>功能调整--取消局域网广播、取消公网聊天</li>
         </ul>
+        <h2>2025.06.16</h2>
+        <ul>
+            <li>功能扩展--首页新增格式化功能</li>
+        </ul>
     ]]></change-notes>
     <applicationListeners>
         <listener class="tangzeqi.com.listener.IDEListener"

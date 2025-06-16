@@ -10,7 +10,6 @@ import tangzeqi.com.utils.Md5Utils;
 import tangzeqi.com.utils.MessageUtils;
 import tangzeqi.com.utils.NetUtils;
 
-import javax.swing.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -85,10 +84,10 @@ public class UPDService {
                         BaseMessage message = MessageUtils.resolve(receivedData);
                         if (message.getMessage() instanceof UPDMessage) {
                             if (check(((UPDMessage) message.getMessage()).getToken())) {
-                                if (!addresses.containsKey(((UPDMessage) message.getMessage()).getMac()+":"+receivePacket.getPort())) {
+                                if (!addresses.containsKey(((UPDMessage) message.getMessage()).getMac() + ":" + receivePacket.getPort())) {
                                     MyProject.cache(project).sysMessage("发现::" + receivePacket.getAddress() + ":" + receivePacket.getPort());
                                 }
-                                addresses.put(((UPDMessage) message.getMessage()).getMac()+":"+receivePacket.getPort(), new UPDInetSocketAddress(receivePacket.getAddress(), receivePacket.getPort()));
+                                addresses.put(((UPDMessage) message.getMessage()).getMac() + ":" + receivePacket.getPort(), new UPDInetSocketAddress(receivePacket.getAddress(), receivePacket.getPort()));
                             }
                         } else if (message.getMessage() instanceof TextMessage) {
                             MyProject.cache(project).chatMessage(((TextMessage) message.getMessage()).getMessage(), message.getMessage().getName());
@@ -148,6 +147,7 @@ public class UPDService {
 
     private class UPDInetSocketAddress extends InetSocketAddress {
         public final long outTime = DateUtils.addMinutes(new Date(), 1).getTime();
+
         public UPDInetSocketAddress(InetAddress addr, int port) {
             super(addr, port);
         }
@@ -156,7 +156,7 @@ public class UPDService {
     private class Scaner implements Runnable {
 
         private final Map<String, String> broadcast = NetUtils.broadcast();
-        private final DatagramPacket scanPacket = new DatagramPacket("".getBytes(), "".getBytes().length,null, 0);
+        private final DatagramPacket scanPacket = new DatagramPacket("".getBytes(), "".getBytes().length, null, 0);
         int start;
         int end;
 
@@ -164,6 +164,7 @@ public class UPDService {
             this.start = start;
             this.end = end;
         }
+
         @Override
         public void run() {
             while (!socket.isClosed()) {

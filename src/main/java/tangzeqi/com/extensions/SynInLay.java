@@ -30,6 +30,6 @@ public class SynInLay implements EditorCustomElementRenderer {
         g.setFont(new Font("微软雅黑", Font.PLAIN, 14));
         int textHeight = g.getFontMetrics().getHeight();
         int baselineY = targetRegion.y + (targetRegion.height - textHeight) / 2 + g.getFontMetrics().getAscent();
-        g.drawString(author+" :", targetRegion.x + 10, baselineY);
+        g.drawString(author + " :", targetRegion.x + 10, baselineY);
     }
 }

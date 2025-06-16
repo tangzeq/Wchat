@@ -156,7 +156,7 @@ public class ConfigPanel extends JPanel {
 
     private void userNameListener(ActionEvent actionEvent) {
         String name = userName.getText();
-        if(ObjectUtils.isNotEmpty(name) && ObjectUtils.isNotEmpty(name.trim())) {
+        if (ObjectUtils.isNotEmpty(name) && ObjectUtils.isNotEmpty(name.trim())) {
             MyProject.cache(project).userName = name.trim();
         }
     }

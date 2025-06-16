@@ -1,10 +1,12 @@
 package tangzeqi.com.utils;
 
 import lombok.SneakyThrows;
-import org.apache.commons.collections.MapUtils;
 import tangzeqi.com.project.MyProject;
 
-import java.net.*;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.ServerSocket;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -45,10 +47,10 @@ public class NetUtils {
         return hosts;
     }
 
-    public static Map<String,String> broadcast() {
-        Map<String,String> map = new HashMap<>();
-        map.put("255.255.255.255",mac());
-        AtomicReference<Map<String,String>> broadcasts = new AtomicReference<>(map);
+    public static Map<String, String> broadcast() {
+        Map<String, String> map = new HashMap<>();
+        map.put("255.255.255.255", mac());
+        AtomicReference<Map<String, String>> broadcasts = new AtomicReference<>(map);
         try {
             // 获取所有网络接口
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -61,7 +63,7 @@ public class NetUtils {
                         InetAddress address = interfaceAddress.getAddress();
                         // 只处理 IPv4 地址
                         if (broadcast != null && address instanceof Inet4Address && !broadcast.isAnyLocalAddress() && !broadcast.isLoopbackAddress() && !broadcast.isLinkLocalAddress()) {
-                            broadcasts.get().put(broadcast.getHostAddress(),mac());
+                            broadcasts.get().put(broadcast.getHostAddress(), mac());
                         }
                     });
                 }
@@ -96,7 +98,7 @@ public class NetUtils {
         return port;
     }
 
-    public static Boolean port(String project,int port) {
+    public static Boolean port(String project, int port) {
         MyProject.cache(project).sysMessage("检查端口是否可用");
         try {
             ServerSocket socket = new ServerSocket(port);

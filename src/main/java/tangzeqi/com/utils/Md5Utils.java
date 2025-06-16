@@ -1,7 +1,5 @@
 package tangzeqi.com.utils;
 
-import java.io.UnsupportedEncodingException;
-
 /**
  * MD5 generator alibaba
  */

@@ -2,7 +2,6 @@ package tangzeqi.com.service;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -11,14 +10,11 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-import lombok.SneakyThrows;
 import org.apache.commons.lang3.ObjectUtils;
 import tangzeqi.com.project.MyProject;
 
 import java.nio.charset.Charset;
 import java.util.Collection;
-
-import static tangzeqi.com.service.ChatService.*;
 
 /**
  * 功能描述：客户端
@@ -48,7 +44,8 @@ public class NettyCustomer {
                 return;
             }
             open = true;
-            if (ObjectUtils.isEmpty(MyProject.cache(project).customerBoot)) MyProject.cache(project).customerBoot = new Bootstrap();
+            if (ObjectUtils.isEmpty(MyProject.cache(project).customerBoot))
+                MyProject.cache(project).customerBoot = new Bootstrap();
             channel = MyProject.cache(project).customerBoot
                     .group(message)
                     .channel(NioSocketChannel.class)

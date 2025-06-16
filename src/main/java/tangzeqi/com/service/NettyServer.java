@@ -36,7 +36,7 @@ public class NettyServer {
     }
 
     public int makeServer(String host, AtomicInteger port, ServerHandler serverHandler) throws Throwable {
-        if (!NetUtils.port(project,port.get())) return port.get();
+        if (!NetUtils.port(project, port.get())) return port.get();
         serverHandler.setServerCache(host + ":" + port);
         MyProject.cache(project).sysMessage("尝试创建聊天室 IP = " + host + ", 端口号 = " + port);
         serverHandler.host = host;
