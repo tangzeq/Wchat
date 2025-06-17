@@ -12,12 +12,14 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
     <description><![CDATA[
-        <h2><a href="https://github.com/tangzeq/Wchat">GitHub</a>   <a href="https://www.cnblogs.com/tangzeqi">博客园</a></h2>
+        <h2><a href="https://github.com/tangzeq/Wchat">GitHub</a>   <a href="https://www.cnblogs.com/tangzeqi">CnBlogs</a></h2>
         <h1>Informations</h1><br>
-        <em>1. This is a chat plugin integrated within the Integrated Development Environment (IDE), accessible via the shortcut Ctrl+1.</em><br>
-        <em>2. Right-click to transmit anchor points to the chat interface.</em><br>
-        <em>3. Access MQTT for public network chat.</em><br>
-    ]]></description>
+        <em>1.   This is a chat plugin integrated within the Integrated Development Environment (IDE), accessible via the shortcut Ctrl+1.</em><br>
+        <em>2.   Right-click to transmit anchor points to the chat interface.</em><br>
+        <em>3.   Access MQTT for public network chat.(cenceled)</em><br>
+        <em>4.   Added code collaboration feature: After establishing a connection, simply right-click on the code file editor you wish to collaborate on.</em><br>
+        <em>5.    Added several formatting tools to enhance code readability and consistency.</em><br>
+        ]]></description>
     <change-notes><![CDATA[
         <h2>2025.04.02</h2>
         <ul>
