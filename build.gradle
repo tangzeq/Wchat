@@ -3,7 +3,7 @@ plugins {
   id 'org.jetbrains.intellij' version '0.7.3'  // IntelliJ 官方插件依赖
 }
 group 'tangzeqi.com'
-version '1.0.4'
+version '1.0.6'
 
 
 repositories {
