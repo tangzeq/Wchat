@@ -1,5 +1,7 @@
 package tangzeqi.com.utils;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.sun.codemodel.CodeWriter;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JPackage;
@@ -12,6 +14,19 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 public class CodeGenerationUtils {
+
+    public static String jsonFormat(String text) {
+        try {
+            // 解析JSON
+            JsonObject jsonObject = new GsonBuilder().create().fromJson(text, JsonObject.class);
+            // 格式化输出JSON
+            String formattedJson = new GsonBuilder().setPrettyPrinting().create().toJson(jsonObject);
+            return formattedJson;
+        } catch (Exception ee) {
+            ee.printStackTrace();
+            return "Error occurred: " + ee.getMessage();
+        }
+    }
     public static String jsonToCode(GenerationConfig config,String text) {
         if(config == null) config = defaultConfig();
         StringWriter stringWriter = new StringWriter();

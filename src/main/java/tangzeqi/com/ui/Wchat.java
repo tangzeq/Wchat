@@ -36,19 +36,25 @@ public class Wchat {
         jsonButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // 禁用JSON按钮
                 jsonButton.setEnabled(false);
+                // 获取输入框中的文本
                 String text = entryArea.getText();
+                // 如果文本不为空，则去除首尾空格
                 if (ObjectUtils.isNotEmpty(text)) text = text.trim();
+                // 如果文本不为空，则解析JSON并格式化输出
                 if (ObjectUtils.isNotEmpty(text)) {
-                    JsonObject jsonObject = new GsonBuilder().create().fromJson(text, JsonObject.class);
-                    // 格式化输出JSON
-                    String formattedJson = new GsonBuilder().setPrettyPrinting().create().toJson(jsonObject);
-                    outArea.setText(formattedJson);
+                    // 将格式化后的JSON文本设置到输出框中
+                    outArea.setText(CodeGenerationUtils.jsonFormat(text));
+                    // 重新验证和绘制窗口
                     wchat.revalidate();
                     wchat.repaint();
+                    // 将焦点设置到输出框中
                     outArea.requestFocusInWindow();
                 }
+                // 启用JSON按钮
                 jsonButton.setEnabled(true);
+                outArea.requestFocusInWindow();
             }
         });
         jsonToJavaButton.addActionListener(new ActionListener() {
@@ -63,9 +69,9 @@ public class Wchat {
                     outArea.setText(code);
                     wchat.revalidate();
                     wchat.repaint();
-                    outArea.requestFocusInWindow();
                 }
                 jsonToJavaButton.setEnabled(true);
+                outArea.requestFocusInWindow();
             }
         });
         sqlToJavaButton.addActionListener(new ActionListener() {
@@ -130,9 +136,9 @@ public class Wchat {
                     outArea.setText(code);
                     wchat.revalidate();
                     wchat.repaint();
-                    outArea.requestFocusInWindow();
                 }
                 sqlToJavaButton.setEnabled(true);
+                outArea.requestFocusInWindow();
             }
         });
     }
