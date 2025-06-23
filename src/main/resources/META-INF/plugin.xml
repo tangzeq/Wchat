@@ -8,7 +8,7 @@
     <version>1.0</version>
     <vendor email="1807788283@qq.com" url="https://www.cnblogs.com/tangzeqi">tangzeqi</vendor>
     <change-notes>Initial release</change-notes>
-    <idea-version since-build="2020.1"/>
+    <idea-version since-build="2023.3.1"/>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
     <description><![CDATA[

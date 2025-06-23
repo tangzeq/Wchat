@@ -1,5 +1,6 @@
 package tangzeqi.com.listener;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
@@ -14,8 +15,7 @@ import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.JBColor;
-import org.apache.commons.httpclient.util.DateUtil;
-import org.apache.commons.lang3.time.DateUtils;
+import org.apache.tools.ant.util.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import tangzeqi.com.action.SynergyAction;
 import tangzeqi.com.extensions.SynInLay;
@@ -25,7 +25,6 @@ import tangzeqi.com.utils.LineMarkerUtils;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MyDocumentListener implements DocumentListener {
@@ -130,7 +129,7 @@ public class MyDocumentListener implements DocumentListener {
                                     !MyProject.cache(projectName).synListener.listCode.equalsIgnoreCase(syn.getUnicode())
                             ) {
                                 MyProject.cache(projectName).synListener.changed.put(syn.getUnicode(), syn.getOldTimeStamp());
-                                System.out.println(projectName + ":" + syn);
+//                                System.out.println(projectName + ":" + syn);
                                 finalEditor.getDocument().removeDocumentListener(listener);
                                 String str = syn.getStr();
 //                                if (syn.getOldLength() <= 0) {
@@ -155,25 +154,12 @@ public class MyDocumentListener implements DocumentListener {
 
     private static void addInlay(@NotNull Editor editor, @NotNull SynergyMessage syn) {
         int offset = editor.getDocument().getLineStartOffset(editor.getDocument().getLineNumber(syn.getStartOffset()));
-//        List<Inlay> inlays = editor.getInlayModel().getBlockElementsForVisualLine(editor.getDocument().getLineNumber(offset), true);
-//        for (Inlay inlay : inlays) {
-//            if (inlay.getRenderer() instanceof SynInLay) {
-//                inlay.dispose();
-//            }
-//        }
-//        List<Inlay> inlayss = editor.getInlayModel().getBlockElementsForVisualLine(editor.getDocument().getLineNumber(offset), false);
-//        for (Inlay inlay : inlayss) {
-//            if (inlay.getRenderer() instanceof SynInLay) {
-//                inlay.dispose();
-//            }
-//        }
-        List<Inlay<? extends SynInLay>> inlays = editor.getInlayModel().getBlockElementsInRange(offset - 1, offset, SynInLay.class);
-        for (Inlay<? extends SynInLay> inlay : inlays) {
-            inlay.dispose();
+//        System.out.println("line = " + editor.getDocument().getLineNumber(syn.getStartOffset()) + ", offset = " + offset + ", syn = " + syn.getStartOffset());
+        String tip = syn.getName() + "(" + DateUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss") + ")";
+        @NotNull List<Inlay<?>> inlays = editor.getInlayModel().getBlockElementsInRange(0, editor.getDocument().getLineEndOffset(editor.getDocument().getLineCount() - 1));
+        for (Inlay<?> inlay : inlays) {
+            if (editor.getDocument().getLineNumber(inlay.getOffset()) == editor.getDocument().getLineNumber(offset) && inlay.getRenderer() instanceof SynInLay) inlay.dispose();
         }
-        String tip = syn.getName()+"("+ DateUtil.formatDate(new Date(),"yyyy-MM-dd HH:mm:ss") +")";
         editor.getInlayModel().addBlockElement(offset, true, true, 0, new SynInLay(tip));
-        LineMarkerUtils.changeTips(editor, 0, syn.getName());
     }
-
 }

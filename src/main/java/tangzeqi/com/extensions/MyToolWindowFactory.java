@@ -16,7 +16,7 @@ public class MyToolWindowFactory implements ToolWindowFactory {
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         MyProject.init(project);
         MyProject.cache(project.getName()).toolWindow = toolWindow;
-        toolWindow.getContentManager().addContent(ContentFactory.SERVICE.getInstance().createContent(new Wchat(project.getName()).$$$getRootComponent$$$(),"home",false), 0);
+        toolWindow.getContentManager().addContent(ContentFactory.getInstance().createContent(new Wchat(project.getName()).$$$getRootComponent$$$(),"home",false), 0);
 //        toolWindow.getContentManager().addContent(HomePanel.content(project.getName()), 0);
         toolWindow.getContentManager().addContent(ConfigPanel.content(project.getName()), 1);
         toolWindow.getContentManager().addContent(ChatPanel.content(project.getName()), 2);

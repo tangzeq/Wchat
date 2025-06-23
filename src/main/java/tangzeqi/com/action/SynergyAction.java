@@ -49,8 +49,7 @@ public class SynergyAction extends AnAction {
                 } else {
                     editor.getDocument().removeDocumentListener(sy.get(key));
                     sy.remove(key);
-                    LineMarkerUtils.removeLineMarker(editor, 0);
-                    List<Inlay> inlays = editor.getInlayModel().getBlockElementsInRange(0, editor.getDocument().getLineEndOffset(editor.getDocument().getLineCount() - 1));
+                    @NotNull List<Inlay<?>> inlays = editor.getInlayModel().getBlockElementsInRange(0, editor.getDocument().getLineEndOffset(editor.getDocument().getLineCount() - 1));
                     for (Inlay inlay : inlays) {
                         if (inlay.getRenderer() instanceof SynInLay) {
                             inlay.dispose();
@@ -65,7 +64,6 @@ public class SynergyAction extends AnAction {
                     MyProject.cache(project.getName()).synListener = listener;
                     editor.getDocument().addDocumentListener(listener);
                     sy.put(key, listener);
-                    LineMarkerUtils.addLineMarker(editor, 0, AllIcons.Actions.Edit);
                 } else {
                 }
             }

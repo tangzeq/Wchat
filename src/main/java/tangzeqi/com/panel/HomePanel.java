@@ -14,7 +14,7 @@ public class HomePanel extends JPanel {
 
     public static Content content(String project) {
         HomePanel homePanel = new HomePanel(project);
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        ContentFactory contentFactory = ContentFactory.getInstance();
         return contentFactory.createContent(homePanel, "home", false);
     }
 }

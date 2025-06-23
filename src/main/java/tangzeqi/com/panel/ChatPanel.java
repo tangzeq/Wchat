@@ -182,7 +182,7 @@ public class ChatPanel extends JPanel {
 
     public static Content content(String project) {
         ChatPanel chatPanel = new ChatPanel(project);
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        ContentFactory contentFactory = ContentFactory.getInstance();
         return contentFactory.createContent(chatPanel, "chat", false);
     }
 

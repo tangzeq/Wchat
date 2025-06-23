@@ -1,29 +1,23 @@
 plugins {
   id 'java'
-  id 'org.jetbrains.intellij' version '0.7.3'  // IntelliJ 官方插件依赖
+  id 'org.jetbrains.intellij.platform' version '2.6.0'
 }
 group 'tangzeqi.com'
-version '1.0.6'
+version '1.0.7'
 
 
 repositories {
   mavenCentral()
-    maven { url 'http://maven.aliyun.com/nexus/content/repositories/google' }
-    maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
-    maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-}
-
-// Configure Gradle IntelliJ Plugin
-// Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
-intellij {
-  version = '2020.1'  // 指定兼容的 IDEA 版本
-  type = 'IC'           // 社区版（商业版用 'IU'）
-  plugins = ['java']    // 依赖插件（如 Spring/Kotlin 按需添加）
-  downloadSources = true
-  instrumentCode = true
+  intellijPlatform {
+    defaultRepositories()
+  }
 }
 
 dependencies {
+  intellijPlatform {
+    create('IC', '2023.3')
+  }
+
   implementation 'io.netty:netty-all:4.1.68.Final'
   compileOnly 'io.netty:netty-all:4.1.68.Final'
   annotationProcessor 'io.netty:netty-all:4.1.68.Final'
@@ -55,11 +49,17 @@ dependencies {
 }
 compileJava {
   options.encoding = 'UTF-8'
-  sourceCompatibility = 1.8
-  targetCompatibility = 1.8
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
+}
+
+java {
+  buildSearchableOptions.defaultCharacterEncoding = 'UTF-8'
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
 }
 
 patchPluginXml {
-  sinceBuild = '201.6668.121'
+  sinceBuild = '233.11799.241'
   untilBuild = '241.18034.62'
 }

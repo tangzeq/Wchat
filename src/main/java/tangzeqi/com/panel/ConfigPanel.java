@@ -301,7 +301,7 @@ public class ConfigPanel extends JPanel {
         gbc.gridwidth = 1;
         gbc.gridheight = 1;
         panel.add(configPanel, gbc);
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        ContentFactory contentFactory = ContentFactory.getInstance();
         return contentFactory.createContent(panel, "config", false);
     }
 
