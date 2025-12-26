@@ -21,6 +21,15 @@
         <em>5.    Added several formatting tools to enhance code readability and consistency.</em><br>
         ]]></description>
     <change-notes><![CDATA[
+        <h2>2025.12.24</h2>
+        <ul>
+            <li>UI调整-全面替换原UI</li>
+            <li>新增-浏览器</li>
+            <li>新增-文件夹</li>
+            <li>新增-工具栏，加解码开发中</li>
+            <li>新增-AI助手开发中</li>
+            <li>调整-聊天室调整中</li>
+        </ul>
         <h2>2025.04.02</h2>
         <ul>
             <li>架构优化--对每个项目进行环境隔离</li>

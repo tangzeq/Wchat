@@ -1,111 +1,522 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="tangzeqi.com.ui.Wchat">
-  <grid id="27dc6" binding="wchat" layout-manager="GridLayoutManager" row-count="4" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="wchat" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="945" height="1248"/>
+      <xy x="20" y="20" width="1000" height="700"/>
     </constraints>
     <properties>
-      <maximumSize width="-1" height="-1"/>
       <minimumSize width="-1" height="-1"/>
       <preferredSize width="-1" height="-1"/>
     </properties>
     <border type="none"/>
     <children>
-      <grid id="73000" binding="buttons" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+      <tabbedpane id="mainTabs" binding="mainTabs">
         <constraints>
-          <grid row="0" column="0" row-span="2" col-span="6" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false">
-            <minimum-size width="-1" height="30"/>
-            <preferred-size width="-1" height="30"/>
-            <maximum-size width="-1" height="30"/>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <grid id="chatPanel" binding="chatPanel" layout-manager="GridLayoutManager" row-count="2" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="10" left="10" bottom="10" right="10"/>
+            <constraints>
+              <tabbedpane title="聊天室"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <grid id="leftPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <enabled value="true"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <grid id="createChatPanel" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="1" left="1" bottom="1" right="1"/>
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="etched" title="创建聊天室"/>
+                    <children>
+                      <component id="label1" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="IP："/>
+                        </properties>
+                      </component>
+                      <component id="ipField" class="javax.swing.JTextField" binding="ipField">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="127.0.0.1"/>
+                        </properties>
+                      </component>
+                      <component id="label2" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="端口："/>
+                        </properties>
+                      </component>
+                      <component id="portField" class="javax.swing.JTextField" binding="portField">
+                        <constraints>
+                          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="8080"/>
+                        </properties>
+                      </component>
+                      <component id="createChatButton" class="javax.swing.JButton" binding="createChatButton">
+                        <constraints>
+                          <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="创建聊天室"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                  <grid id="joinChatPanel" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="1" left="1" bottom="1" right="1"/>
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="etched" title="加入聊天室"/>
+                    <children>
+                      <component id="label3" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="IP："/>
+                        </properties>
+                      </component>
+                      <component id="joinIpField" class="javax.swing.JTextField" binding="joinIpField">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="127.0.0.1"/>
+                        </properties>
+                      </component>
+                      <component id="label4" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="端口："/>
+                        </properties>
+                      </component>
+                      <component id="joinPortField" class="javax.swing.JTextField" binding="joinPortField">
+                        <constraints>
+                          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="8080"/>
+                        </properties>
+                      </component>
+                      <component id="joinChatButton" class="javax.swing.JButton" binding="joinChatButton">
+                        <constraints>
+                          <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="加入聊天室"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                  <grid id="personalInfoPanel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="1" left="1" bottom="1" right="1"/>
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="etched" title="个人信息"/>
+                    <children>
+                      <component id="label5" class="javax.swing.JLabel">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="昵称："/>
+                        </properties>
+                      </component>
+                      <component id="nicknameField" class="javax.swing.JTextField" binding="nicknameField">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="用户"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                </children>
+              </grid>
+              <grid id="centerPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="5" left="5" bottom="5" right="5"/>
+                <constraints>
+                  <grid row="0" column="1" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                    <preferred-size width="600" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <scrollpane id="chatMessageScroll" binding="chatMessageScroll">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="etched" title="聊天信息"/>
+                    <children>
+                      <component id="chatMessageList" class="javax.swing.JList" binding="chatMessageList">
+                        <constraints/>
+                        <properties/>
+                      </component>
+                    </children>
+                  </scrollpane>
+                  <grid id="inputPanel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="5" left="5" bottom="5" right="5"/>
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="etched" title="发送消息"/>
+                    <children>
+                      <component id="messageField" class="javax.swing.JTextField" binding="messageField">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                      </component>
+                      <component id="sendButton" class="javax.swing.JButton" binding="sendButton">
+                        <constraints>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <text value="发送"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                </children>
+              </grid>
+              <scrollpane id="chatRoomScroll" binding="chatRoomScroll">
+                <constraints>
+                  <grid row="0" column="2" row-span="2" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                    <preferred-size width="200" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+                <border type="etched" title="聊天室列表"/>
+                <children>
+                  <component id="chatRoomList" class="javax.swing.JList" binding="chatRoomList">
+                    <constraints/>
+                    <properties/>
+                  </component>
+                </children>
+              </scrollpane>
+            </children>
           </grid>
-        </constraints>
-        <properties>
-          <enabled value="true"/>
-        </properties>
-        <border type="none"/>
-        <children>
-          <component id="fd577" class="javax.swing.JButton" binding="jsonButton">
-            <constraints/>
-            <properties>
-              <text value="JSON格式化"/>
-            </properties>
-          </component>
-          <component id="4f4b9" class="javax.swing.JButton" binding="jsonToJavaButton">
-            <constraints/>
-            <properties>
-              <text value="JSON转JAVA实体"/>
-            </properties>
-          </component>
-          <component id="e04c8" class="javax.swing.JButton" binding="sqlToJavaButton">
-            <constraints/>
-            <properties>
-              <text value="SQL查询转Java实体"/>
-            </properties>
-          </component>
-        </children>
-      </grid>
-      <grid id="91086" binding="entryPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="0" left="0" bottom="0" right="0"/>
-        <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-        <border type="none"/>
-        <children>
-          <scrollpane id="d87d6" binding="entryScroll">
+          <grid id="folderPanel" binding="folderPanel" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="10" left="10" bottom="10" right="10"/>
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <tabbedpane title="文件夹"/>
             </constraints>
             <properties/>
             <border type="none"/>
             <children>
-              <component id="be869" class="javax.swing.JTextArea" binding="entryArea">
-                <constraints/>
+              <grid id="folderPathPanel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="5" left="5" bottom="5" right="5"/>
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
                 <properties/>
-              </component>
+                <border type="etched" title="路径"/>
+                <children>
+                  <component id="folderPathField" class="javax.swing.JTextField" binding="folderPathField">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <editable value="false"/>
+                      <margin top="2" left="6" bottom="2" right="6"/>
+                    </properties>
+                  </component>
+                  <component id="browseButton" class="javax.swing.JButton" binding="browseButton">
+                    <constraints>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="浏览"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <scrollpane id="fileListScroll" binding="fileListScroll">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                    <preferred-size width="200" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+                <border type="etched" title="文件列表"/>
+                <children>
+                  <component id="fileList" class="javax.swing.JList" binding="fileList">
+                    <constraints/>
+                    <properties/>
+                  </component>
+                </children>
+              </scrollpane>
+              <grid id="fileInfoPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                    <preferred-size width="800" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+                <border type="etched" title="文件内容"/>
+                <children>
+                  <scrollpane id="fileContentScroll" binding="fileContentScroll">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="fileContentArea" class="javax.swing.JTextArea" binding="fileContentArea">
+                        <constraints/>
+                        <properties>
+                          <editable value="false"/>
+                          <lineWrap value="true"/>
+                          <wrapStyleWord value="true"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </scrollpane>
+                </children>
+              </grid>
             </children>
-          </scrollpane>
-        </children>
-      </grid>
-      <vspacer id="e1766">
-        <constraints>
-          <grid row="2" column="5" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </vspacer>
-      <hspacer id="cc074">
-        <constraints>
-          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </hspacer>
-      <grid id="d4768" binding="outPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="0" left="0" bottom="0" right="0"/>
-        <constraints>
-          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-        <border type="none"/>
-        <children>
-          <scrollpane id="d5047" binding="outScroll">
+          </grid>
+          <grid id="browserPanel" binding="browserPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="10" left="10" bottom="10" right="10"/>
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <tabbedpane title="浏览器"/>
             </constraints>
             <properties/>
             <border type="none"/>
             <children>
-              <component id="fc38" class="javax.swing.JTextArea" binding="outArea">
-                <constraints/>
+              <grid id="browserBar" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="5" left="5" bottom="5" right="5"/>
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
                 <properties/>
-              </component>
+                <border type="etched" title="地址栏"/>
+                <children>
+                  <component id="urlField" class="javax.swing.JTextField" binding="urlField">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <preferredSize width="0" height="25"/>
+                      <text value="https://www.cnblogs.com/tangzeqi"/>
+                    </properties>
+                  </component>
+                  <component id="goButton" class="javax.swing.JButton" binding="goButton">
+                    <constraints>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <preferredSize width="60" height="25"/>
+                      <text value="访问"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="browserContentPanel" binding="browserContentPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+				<margin top="5" left="5" bottom="5" right="5"/>
+				<constraints>
+					<grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+				</constraints>
+				<properties/>
+				<border type="etched" title="浏览器"/>
+				<children/>
+			</grid>
             </children>
-          </scrollpane>
+          </grid>
+          <grid id="toolsPanel" binding="toolsPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="10" left="10" bottom="10" right="10"/>
+            <constraints>
+              <tabbedpane title="工具箱"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <grid id="toolsWorkArea" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="5" left="5" bottom="5" right="5"/>
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <scrollpane id="inputScroll" binding="inputScroll">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                        <preferred-size width="500" height="-1"/>
+                      </grid>
+                    </constraints>
+                    <properties/>
+                    <border type="etched" title="输入"/>
+                    <children>
+                      <component id="inputArea" class="javax.swing.JTextArea" binding="inputArea">
+                        <constraints/>
+                        <properties>
+                          <lineWrap value="true"/>
+                          <wrapStyleWord value="true"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </scrollpane>
+                  <scrollpane id="outputScroll" binding="outputScroll">
+                    <constraints>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                        <preferred-size width="500" height="-1"/>
+                      </grid>
+                    </constraints>
+                    <properties/>
+                    <border type="etched" title="输出"/>
+                    <children>
+                      <component id="outputArea" class="javax.swing.JTextArea" binding="outputArea">
+                        <constraints/>
+                        <properties>
+                          <editable value="false"/>
+                          <lineWrap value="true"/>
+                          <wrapStyleWord value="true"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </scrollpane>
+                </children>
+              </grid>
+              <grid id="toolsButtons" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="etched" title="工具列表"/>
+                <children>
+                  <component id="jsonFormatButton" class="javax.swing.JButton" binding="jsonFormatButton">
+                    <constraints/>
+                    <properties>
+                      <text value="JSON格式化"/>
+                    </properties>
+                  </component>
+                  <component id="jsonToJavaButton" class="javax.swing.JButton" binding="jsonToJavaButton">
+                    <constraints/>
+                    <properties>
+                      <text value="JSON转Java实体"/>
+                    </properties>
+                  </component>
+                  <component id="sqlToJavaButton" class="javax.swing.JButton" binding="sqlToJavaButton">
+                    <constraints/>
+                    <properties>
+                      <text value="SQL转Java实体"/>
+                    </properties>
+                  </component>
+                  <component id="encryptButton" class="javax.swing.JButton" binding="encryptButton">
+                    <constraints/>
+                    <properties>
+                      <text value="加密工具"/>
+                    </properties>
+                  </component>
+                  <component id="decryptButton" class="javax.swing.JButton" binding="decryptButton">
+                    <constraints/>
+                    <properties>
+                      <text value="解密工具"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+          <grid id="aiPanel" binding="aiPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="10" left="10" bottom="10" right="10"/>
+            <constraints>
+              <tabbedpane title="AI助手"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <scrollpane id="aiOutputScroll" binding="aiOutputScroll">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="etched" title="输出"/>
+                <children>
+                  <component id="aiOutputArea" class="javax.swing.JTextArea" binding="aiOutputArea">
+                    <constraints/>
+                    <properties>
+                      <editable value="false"/>
+                      <lineWrap value="true"/>
+                      <wrapStyleWord value="true"/>
+                    </properties>
+                  </component>
+                </children>
+              </scrollpane>
+              <grid id="aiInputPanel" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="5" left="5" bottom="5" right="5"/>
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="aiInputField" class="javax.swing.JTextField" binding="aiInputField">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                  </component>
+                  <component id="aiTrainButton" class="javax.swing.JButton" binding="aiTrainButton">
+                    <constraints>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="AI训练"/>
+                    </properties>
+                  </component>
+                  <component id="aiChatButton" class="javax.swing.JButton" binding="aiChatButton">
+                    <constraints>
+                      <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="AI对话"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
         </children>
-      </grid>
-      <hspacer id="f5482">
-        <constraints>
-          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </hspacer>
+      </tabbedpane>
     </children>
   </grid>
 </form>

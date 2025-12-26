@@ -9,22 +9,20 @@ import com.intellij.openapi.wm.ToolWindow;
 import io.netty.bootstrap.Bootstrap;
 import org.apache.commons.lang3.ObjectUtils;
 import tangzeqi.com.listener.MyDocumentListener;
-import tangzeqi.com.panel.ChatPanel;
-import tangzeqi.com.panel.ConfigPanel;
-import tangzeqi.com.panel.HomePanel;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static tangzeqi.com.ui.UiConstantEnum.SYS;
+
 public class ChatService {
     public final Project project;
     public boolean start;
     public boolean connect;
-    public ChatPanel chat;
-    public ConfigPanel config;
-    public HomePanel home;
+    public Chat chat;
+    public Config config;
     public String serverIp;
     public String serverPort;
     public String userName;
@@ -146,7 +144,7 @@ public class ChatService {
      */
     public void sysMessage(String m) {
         if (ObjectUtils.isNotEmpty(config)) {
-            config.addSysMessage(m, "系统");
+            config.addSysMessage(m, SYS.getValue());
         }
     }
 
@@ -183,7 +181,7 @@ public class ChatService {
     }
 
     public void sendChat(String message) {
-        chat.inputFieldPost(message);
+        chat.send(message);
     }
 
     public void mqttconnect() {

@@ -7,6 +7,7 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.ui.UIUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import tangzeqi.com.project.MyProject;
+import tangzeqi.com.service.Config;
 import tangzeqi.com.utils.NetUtils;
 
 import javax.swing.*;
@@ -16,7 +17,7 @@ import java.awt.event.ActionEvent;
 import static tangzeqi.com.utils.PanelUtils.resetGBC;
 import static tangzeqi.com.utils.PanelUtils.textLimit;
 
-public class ConfigPanel extends JPanel {
+public class ConfigPanel extends JPanel implements Config {
     private final String project;
     private final JButton mqtt;
     private final JBTextField mqttroom;
@@ -173,7 +174,8 @@ public class ConfigPanel extends JPanel {
         MyProject.cache(project).updconnect();
     }
 
-    public void updconnectStatus(Boolean cenClick, String text) {
+    @Override
+    public void updconnectStatus(boolean cenClick, String text) {
         if (ObjectUtils.isNotEmpty(updconnect)) {
             updconnect.setEnabled(cenClick);
             updconnect.setText(text);
@@ -212,6 +214,7 @@ public class ConfigPanel extends JPanel {
         add(new JBScrollPane(userArea), BorderLayout.CENTER);
     }
 
+    @Override
     public void addSysMessage(String message, String sender) {
         String formattedMessage = String.format("[%s] %s\n", sender, message);
         userArea.append(formattedMessage);
@@ -266,21 +269,24 @@ public class ConfigPanel extends JPanel {
         MyProject.cache(project).start();
     }
 
-    public void serverStatus(Boolean cenClick, String text) {
+    @Override
+    public void serverStatus(boolean cenClick, String text) {
         if (ObjectUtils.isNotEmpty(button)) {
             button.setEnabled(cenClick);
             button.setText(text);
         }
     }
 
-    public void connectStatus(Boolean cenClick, String text) {
+    @Override
+    public void connectStatus(boolean cenClick, String text) {
         if (ObjectUtils.isNotEmpty(connect)) {
             connect.setEnabled(cenClick);
             connect.setText(text);
         }
     }
 
-    public void mqttStatus(Boolean cenClick, String text) {
+    @Override
+    public void mqttStatus(boolean cenClick, String text) {
         if (ObjectUtils.isNotEmpty(mqtt)) {
             mqtt.setEnabled(cenClick);
             mqtt.setText(text);

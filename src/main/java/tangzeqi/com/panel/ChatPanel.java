@@ -11,6 +11,7 @@ import com.intellij.util.ui.UIUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import tangzeqi.com.project.MyProject;
+import tangzeqi.com.service.Chat;
 import tangzeqi.com.stroge.TextMessage;
 
 import javax.swing.*;
@@ -23,7 +24,7 @@ import java.util.regex.Pattern;
 
 import static tangzeqi.com.utils.PanelUtils.textLimit;
 
-public class ChatPanel extends JPanel {
+public class ChatPanel extends JPanel implements Chat {
 
     private final String project;
 
@@ -137,6 +138,7 @@ public class ChatPanel extends JPanel {
         }
     }
 
+    @Override
     public void addMessage(String message, String sender) {
         String formattedMessage = String.format("[%s] %s\n", sender, message);
         onMessage(formattedMessage);
@@ -148,7 +150,8 @@ public class ChatPanel extends JPanel {
         if (ObjectUtils.isNotEmpty(MyProject.cache(project).chat) && !MyProject.cache(project).chat.isShowing()) {
             ApplicationManager.getApplication().invokeLater(() -> {
                 // 创建通知组（确保类型为 BALLOON）
-                NotificationGroup group = new NotificationGroup(
+                NotificationGroup group =
+                        new NotificationGroup(
                         "Wchat Notifications",
                         NotificationDisplayType.BALLOON,  // 关键：使用 BALLOON 类型
                         true
@@ -157,8 +160,7 @@ public class ChatPanel extends JPanel {
                 Notification notification = group.createNotification(
                         "收到新的消息",
                         message,
-                        NotificationType.INFORMATION,
-                        null  // 可选动作
+                        NotificationType.INFORMATION
                 );
                 notification.addAction(new AnAction("查看详情") {
                     @Override
@@ -174,10 +176,16 @@ public class ChatPanel extends JPanel {
         }
     }
 
-    public void inputFieldPost(String str) {
+    @Override
+    public void send(String str) {
         inputField.setText(str);
         inputField.postActionEvent();
         inputField.setText("");
+    }
+
+    @Override
+    public boolean isShowing() {
+        return super.isShowing();
     }
 
     public static Content content(String project) {

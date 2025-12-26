@@ -12,7 +12,7 @@ public class CodeLineToChat extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent an) {
         FileEditorManager manager = FileEditorManager.getInstance(an.getProject());
         String path = manager.getSelectedEditor().getFile().getPath();
-        String base = MyProject.cache(an.getProject().getName()).project.getBaseDir().getPath();
+        String base = MyProject.cache(an.getProject().getName()).project.getBasePath();
         String name = path.replace(base, "");
         int line = manager.getSelectedTextEditor().getCaretModel().getLogicalPosition().line + 1;
         MyProject.cache(an.getProject().getName()).sendChat(name + ":" + line + "（点击跳转）");

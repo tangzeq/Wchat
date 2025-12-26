@@ -154,7 +154,6 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             serverCache.remove(s);
         } catch (Throwable e) {
             serverCache.remove(s.hashCode() + "", s);
-            throw new RuntimeException(e);
         }
         return serverCache;
     }

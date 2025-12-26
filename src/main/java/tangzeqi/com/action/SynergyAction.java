@@ -16,6 +16,7 @@ import tangzeqi.com.project.MyProject;
 import tangzeqi.com.utils.LineMarkerUtils;
 import tangzeqi.com.utils.NetUtils;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +40,9 @@ public class SynergyAction extends AnAction {
             Messages.showInfoMessage("未获取到有效文档", "协同编辑");
         } else if (ObjectUtils.isEmpty(path)) {
             Messages.showInfoMessage("正在加载模组中，请稍后打开！", "协同编辑");
+        } else if(!MyProject.cache(project.getName()).connect) {
+            Messages.showInfoMessage("请先连接服务器！", "协同编辑");
+            MyProject.cache(project.getName()).sysMessage("请先连接服务器！");
         } else {
             String base = MyProject.cache(project.getName()).project.getBaseDir().getPath();
             String filePath = path.replace(base, "");
@@ -47,6 +51,7 @@ public class SynergyAction extends AnAction {
                 int i = Messages.showOkCancelDialog("当前文件正在协同编辑中，请选择？", "协同编辑", "继续协同", "取消协同", Messages.getQuestionIcon());
                 if (i == Messages.OK) {
                 } else {
+                    MyProject.cache(project.getName()).sendChat(filePath+":1（点击跳转）正在发起文件协同编辑！");
                     editor.getDocument().removeDocumentListener(sy.get(key));
                     sy.remove(key);
                     @NotNull List<Inlay<?>> inlays = editor.getInlayModel().getBlockElementsInRange(0, editor.getDocument().getLineEndOffset(editor.getDocument().getLineCount() - 1));

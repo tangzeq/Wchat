@@ -2,6 +2,25 @@ plugins {
   id 'java'
   id 'org.jetbrains.intellij.platform' version '2.6.0'
 }
+
+tasks.withType(Test) {
+  systemProperty 'file.encoding', 'UTF-8'
+}
+tasks.withType(JavaCompile).configureEach {
+  options.encoding = 'UTF-8'
+  options.compilerArgs += ['-Xlint:unchecked', '-Xlint:deprecation', '-encoding', 'UTF-8']
+  sourceCompatibility = "17"
+  targetCompatibility = "17"
+}
+tasks.withType(JavaExec) {
+  systemProperty 'file.encoding', 'UTF-8'
+}
+tasks.all {
+  if (it.hasProperty('java')) {
+    it.java.systemProperty 'file.encoding', 'UTF-8'
+  }
+}
+
 group 'tangzeqi.com'
 version '1.0.7'
 
@@ -46,9 +65,19 @@ dependencies {
   compileOnly 'com.github.jsqlparser:jsqlparser:3.2'
   annotationProcessor 'com.github.jsqlparser:jsqlparser:3.2'
 
+  implementation 'org.slf4j:slf4j-api:2.0.7'
+  compileOnly 'org.slf4j:slf4j-api:2.0.7'
+  annotationProcessor 'org.slf4j:slf4j-api:2.0.7'
+
+  implementation 'org.slf4j:slf4j-simple:2.0.7'
+  compileOnly 'org.slf4j:slf4j-simple:2.0.7'
+  annotationProcessor 'org.slf4j:slf4j-simple:2.0.7'
+
+
 }
 compileJava {
   options.encoding = 'UTF-8'
+  options.compilerArgs += ['-Xlint:unchecked', '-Xlint:deprecation']
   sourceCompatibility = JavaVersion.VERSION_17
   targetCompatibility = JavaVersion.VERSION_17
 }
@@ -58,6 +87,14 @@ java {
   sourceCompatibility = JavaVersion.VERSION_17
   targetCompatibility = JavaVersion.VERSION_17
 }
+javadoc {
+  options.encoding = 'UTF-8'
+}
+
+runIde {
+  jvmArgs = ['-Xmx2048m', '-Dfile.encoding=UTF-8']
+}
+
 
 patchPluginXml {
   sinceBuild = '233.11799.241'
