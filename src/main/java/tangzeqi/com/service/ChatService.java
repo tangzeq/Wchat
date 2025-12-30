@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import io.netty.bootstrap.Bootstrap;
 import org.apache.commons.lang3.ObjectUtils;
+import org.cef.browser.CefBrowser;
 import tangzeqi.com.listener.MyDocumentListener;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -43,6 +44,8 @@ public class ChatService {
     public volatile boolean upd = false;
     public volatile UPDService updService;
     public volatile MyDocumentListener synListener;
+
+    public BrowSer browSer;
 
 
     public volatile ThreadPoolExecutor executor = new ThreadPoolExecutor(
@@ -250,6 +253,10 @@ public class ChatService {
             config.updconnectStatus(true, "启用局域网广播模式");
             executor.execute(() -> updService.shutDowm());
         }
+    }
+
+    public void changeBrowser(CefBrowser browser) {
+        browSer.addDevTools(browser);
     }
 
     public void showContent(String name) {
