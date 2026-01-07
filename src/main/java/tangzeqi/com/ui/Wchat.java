@@ -433,13 +433,8 @@ public class Wchat extends JPanel implements Config, Chat {
         // 添加浏览器主视图
         int i = 0;
         for (Component component : browser.getComponents()) {
-            browserTabs.addTab("浏览器"+(i++),component);
+            browserTabs.addTab(component.getName(),component);
         }
-        // 添加开发者工具按钮
-        JButton devToolsButton = new JButton("开发者工具");
-        devToolsButton.addActionListener(e -> ((MyWebView)browser).showDeveloperTools());
-        browserTabs.addTab("控制", new JPanel().add(devToolsButton));
-
         // URL加载事件处理
         urlField.addActionListener(e -> {
             String url = urlField.getText();

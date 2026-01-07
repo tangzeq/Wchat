@@ -1,19 +1,16 @@
 plugins {
   id 'java'
   id 'org.jetbrains.intellij.platform' version '2.6.0'
-  id 'org.openjfx.javafxplugin' version '0.1.0' // 稳定管理JavaFX依赖，无兼容问题
+  id 'org.openjfx.javafxplugin' version '0.1.0' // 稳定管理JavaFX依赖
 }
 
-// 【删除了错误的 settingsEvaluated() 代码块，避免语法异常】
-// 配置缓存禁用：直接在 gradle.properties 中添加 org.gradle.configurationcache=false 即可，无需在此处配置
-
-// JavaFX 插件一键配置，自动适配系统平台（无需手动写win-x64，绝对不会依赖缺失）
+// JavaFX 插件一键配置，自动适配系统平台
 javafx {
-  version = '17.0.1' // 与JDK17、你的代码完全兼容
+  version = '17.0.1' // 与JDK17完全兼容，匹配你的代码
   modules = ['javafx.controls', 'javafx.web', 'javafx.swing', 'javafx.fxml', 'javafx.graphics', 'javafx.base']
 }
 
-// 编码配置（全链路UTF-8，无无效配置，解决控制台乱码）
+// 编码配置（全链路UTF-8，解决控制台/文件乱码）
 tasks.withType(Test) {
   systemProperty 'file.encoding', 'UTF-8'
 }
@@ -45,11 +42,11 @@ tasks.all {
 group 'tangzeqi.com'
 version '1.0.7'
 
-// 仓库配置（必含Gluon，确保JavaFX依赖100%能下载到，无遗漏）
+// 仓库配置（确保JavaFX及第三方依赖可下载）
 repositories {
   mavenCentral()
   maven { url 'https://repo.gradle.org/gradle/libs-releases' }
-  maven { // JavaFX专属仓库，不可缺少
+  maven { // JavaFX专属仓库，不可缺失
     url 'https://maven.gluonhq.com/'
     name 'Gluon Repository'
   }
@@ -58,7 +55,7 @@ repositories {
   }
 }
 
-// 依赖配置（无冗余、无冲突，第三方依赖原样保留，无问题）
+// 依赖配置（无冗余、无冲突）
 dependencies {
   intellijPlatform {
     create('IC', '2023.3')
@@ -76,7 +73,7 @@ dependencies {
   implementation 'org.slf4j:slf4j-simple:2.0.7'
 }
 
-// 编译配置（稳定无异常，兜底编译问题）
+// 编译配置兜底
 compileJava {
   options.encoding = 'UTF-8'
   options.compilerArgs += ['-Xlint:unchecked', '-Xlint:deprecation']
@@ -94,34 +91,38 @@ javadoc {
   options.encoding = 'UTF-8'
 }
 
-// runIde 核心配置（无闭包冲突、无模块缺失，100%能启动）
+// runIde 核心配置（解决JavaFX模块加载问题，确保IDE插件正常启动）
 runIde {
-  // 1. 提前解析JavaFX模块路径（配置阶段执行，非闭包内，无任何冲突）
+  // 1. 解析JavaFX模块路径
   def javafxJars = configurations.runtimeClasspath.files.findAll {
     it.name.startsWith('javafx-') && it.name.endsWith('.jar')
   }
   def javafxModulePath = javafxJars.join(File.pathSeparator)
 
-  // 2. JVM参数：顺序严格规范（先模块路径，再添加模块，最后导出API），无漏洞
+  // 2. JVM参数配置（顺序规范，无漏洞）
   jvmArgs = [
-          '-Xmx2048m', // 充足内存，避免插件卡顿
+          '-Xmx2048m', // 充足内存，避免卡顿
           '-Dfile.encoding=UTF-8',
           '-Dsun.jnu.encoding=UTF-8',
-          "--module-path=${javafxModulePath}", // 关键：告诉JVM JavaFX模块的位置，彻底解决找不到模块问题
-          '--add-modules=javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.swing,javafx.web', // 加载所有需要的JavaFX模块
-          // 导出内部API，避免运行时异常
+          "--module-path=${javafxModulePath}",
+          '--add-modules=javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.swing,javafx.web',
+          // 导出内部API，支持反射调用（开发者工具功能）
           '--add-exports=javafx.web/com.sun.webkit.network=ALL-UNNAMED',
           '--add-exports=javafx.web/com.sun.webkit.graphics=ALL-UNNAMED',
           '--add-exports=javafx.web/com.sun.webkit.dom=ALL-UNNAMED',
-          '--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED'
+          '--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED',
+          '--add-exports=javafx.web/com.sun.webkit=ALL-UNNAMED', // 新增：支持WebPage反射
+          '--add-opens=javafx.web/javafx.scene.web=ALL-UNNAMED',
+          '--add-opens=javafx.web/com.sun.javafx.scene.web=ALL-UNNAMED',
+          '--add-opens=javafx.web/com.sun.webkit=ALL-UNNAMED'
   ]
 
-  // 编码环境变量兜底，杜绝乱码
+  // 编码环境变量兜底
   environment 'IDE_PROPERTIES_FILE_ENCODING', 'UTF-8'
   environment 'FILE_ENCODING', 'UTF-8'
 }
 
-// 插件版本兼容配置（原样保留，无问题）
+// 插件版本兼容配置
 patchPluginXml {
   sinceBuild = '233.11799.241'
   untilBuild = '241.18034.62'
