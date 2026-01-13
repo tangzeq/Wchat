@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import io.netty.bootstrap.Bootstrap;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.cef.browser.CefBrowser;
 import tangzeqi.com.listener.MyDocumentListener;
@@ -18,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static tangzeqi.com.ui.UiConstantEnum.SYS;
 
+@Slf4j
 public class ChatService {
     public final Project project;
     public boolean start;
@@ -175,12 +177,12 @@ public class ChatService {
     }
 
     public void shutDown() {
-        System.out.println("Wchat is shutDowning...");
+        log.info("Wchat is shutDowning...");
         executor.execute(() -> server.shutDown());
         executor.execute(() -> customer.shutDown());
         executor.execute(() -> mqttService.shutDowm());
         executor.execute(() -> updService.shutDowm());
-        System.out.println("Wchat is shutDowned");
+        log.info("Wchat is shutDowned");
     }
 
     public void sendChat(String message) {

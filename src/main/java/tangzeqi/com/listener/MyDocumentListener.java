@@ -15,6 +15,7 @@ import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.JBColor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tools.ant.util.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import tangzeqi.com.action.SynergyAction;
@@ -27,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class MyDocumentListener implements DocumentListener {
     private static final TextAttributes textAttributes = new TextAttributes();
 
@@ -67,9 +69,9 @@ public class MyDocumentListener implements DocumentListener {
     @Override
     public void documentChanged(@NotNull DocumentEvent event) {
 //        if (event.getOldTimeStamp() == oldTimeStamp) {
-//            System.out.println(filePath + " :olded =" + event.getOffset() + " to " + event.getMoveOffset() + " char:" + event.getOldFragment().toString());
-        System.out.println(project + " : " + event + " " + event.getOldTimeStamp());
-//            System.out.println("oldTimeStamp =" + oldTimeStamp);
+//            log.info("{} :olded ={} to {} char:{}", filePath, event.getOffset(), event.getMoveOffset(), event.getOldFragment().toString());
+        log.info("{} : {} {}", project, event, event.getOldTimeStamp());
+//            log.info("oldTimeStamp ={}", oldTimeStamp);
         MyProject.cache(project).customerHandler.send(message(event.getNewFragment().toString(), event));
 //        }
     }
@@ -154,7 +156,7 @@ public class MyDocumentListener implements DocumentListener {
 
     private static void addInlay(@NotNull Editor editor, @NotNull SynergyMessage syn) {
         int offset = editor.getDocument().getLineStartOffset(editor.getDocument().getLineNumber(syn.getStartOffset()));
-//        System.out.println("line = " + editor.getDocument().getLineNumber(syn.getStartOffset()) + ", offset = " + offset + ", syn = " + syn.getStartOffset());
+//        log.info("line = {}, offset = {}, syn = {}", editor.getDocument().getLineNumber(syn.getStartOffset()), offset, syn.getStartOffset());
         String tip = syn.getName() + "(" + DateUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss") + ")";
         @NotNull List<Inlay<?>> inlays = editor.getInlayModel().getBlockElementsInRange(0, editor.getDocument().getLineEndOffset(editor.getDocument().getLineCount() - 1));
         for (Inlay<?> inlay : inlays) {

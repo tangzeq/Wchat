@@ -1,11 +1,13 @@
 package tangzeqi.com.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import tangzeqi.com.project.MyProject;
 
 
+@Slf4j
 public class MqttService {
     private final String project;
     // 公共 MQTT 代理的地址
@@ -67,7 +69,7 @@ public class MqttService {
 
                     @Override
                     public void deliveryComplete(IMqttDeliveryToken token) {
-                        System.out.println("Message delivered");
+                        log.info("Message delivered");
                     }
                 });
             }
