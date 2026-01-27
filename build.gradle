@@ -1,82 +1,13 @@
 plugins {
   id 'java'
   id 'org.jetbrains.intellij.platform' version '2.6.0'
-  id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
 // ===================== 基础配置 =====================
 group = 'tangzeqi.com'
 version = '1.0.7'
 
-// ===================== Gradle 编码配置 =====================
-// 确保 Gradle 构建过程使用 UTF-8 编码
-tasks.withType(GroovyCompile) {
-    options.encoding = 'UTF-8'
-}
-
-// 确保 Gradle 控制台输出使用 UTF-8 编码
-if (System.getProperty('os.name').toLowerCase().contains('windows')) {
-    // Windows 环境下强制使用 UTF-8 编码
-    System.setProperty('console.encoding', 'UTF-8')
-    // 确保系统输出使用 UTF-8
-    System.setProperty('file.encoding', 'UTF-8')
-    System.setProperty('sun.jnu.encoding', 'UTF-8')
-    // 确保 Gradle 守护进程使用 UTF-8
-    System.setProperty('org.gradle.jvmargs', '-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8')
-}
-
-// 确保所有任务都使用 UTF-8 编码
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
-// 确保测试任务使用 UTF-8 编码
-tasks.withType(Test) {
-    systemProperty 'file.encoding', 'UTF-8'
-    systemProperty 'sun.jnu.encoding', 'UTF-8'
-}
-
-// 确保资源处理使用 UTF-8 编码
-tasks.withType(ProcessResources) {
-    // 资源处理编码设置
-    filteringCharset = 'UTF-8'
-    outputs.upToDateWhen { false }
-}
-
-// 确保文档生成使用 UTF-8 编码
-tasks.withType(Javadoc) {
-    options.encoding = 'UTF-8'
-}
-
-// ===================== JavaFX 配置 =====================
-javafx {
-  version = '17.0.1'
-  modules = ['javafx.controls', 'javafx.web', 'javafx.swing', 'javafx.fxml', 'javafx.graphics', 'javafx.base']
-}
-
-// ===================== 编码全局配置 =====================
-tasks.withType(Test) {
-  systemProperty 'file.encoding', 'UTF-8'
-}
-
-tasks.withType(JavaCompile).configureEach {
-  options.encoding = "UTF-8"
-  options.compilerArgs.addAll(['-Xlint:unchecked', '-Xlint:deprecation'])
-  sourceCompatibility = JavaVersion.VERSION_17
-  targetCompatibility = JavaVersion.VERSION_17
-}
-
-tasks.withType(JavaExec) {
-  systemProperty 'file.encoding', 'UTF-8'
-  systemProperty 'sun.jnu.encoding', 'UTF-8'
-  defaultCharacterEncoding = 'UTF-8'
-}
-
-tasks.withType(Javadoc) {
-  options.encoding = 'UTF-8'
-}
-
-// ===================== 仓库配置（移除非法timeout属性） =====================
+// ===================== 仓库配置 =====================
 repositories {
   // 1. 阿里云中央仓库（优先，国内最快）
   maven { url = uri('https://maven.aliyun.com/repository/public/') }
@@ -86,138 +17,56 @@ repositories {
   mavenCentral()
   // 4. Gradle官方仓库
   maven { url = uri('https://repo.gradle.org/gradle/libs-releases') }
-  // 5. IntelliJ平台仓库
+  // 5. IntelliJ平台仓库（内置JCEF依赖来源）
   intellijPlatform {
     defaultRepositories()
   }
-  // 6. JavaFX专属仓库（正确域名）
-  maven {
-    url = uri('https://nexus.gluonhq.com/nexus/content/repositories/releases/')
-    name = 'Gluon Repository'
-  }
-  // 7. JCEF备用仓库（GitHub HTTPS，移除非法timeout）
-  maven {
-    url = uri('https://raw.githubusercontent.com/jcefmaven/jcefmaven/maven2/')
-  }
 }
 
-// ===================== 依赖配置（语法严谨） =====================
-dependencies {
-  // IntelliJ平台依赖
-  intellijPlatform {
-    create('IC', '2023.3')
-  }
+// ===================== 移除：外部JCEF相关的冲突排除与版本强制策略 =====================
+// （删除原有的 configurations.all 中关于JCEF的排除和 resolutionStrategy 配置）
+configurations.all {
+  // 仅保留其他可能的通用配置（若有），此处无额外配置
+}
 
+// ===================== 依赖配置（核心修改：移除外部JCEF，依赖内置JCEF） =====================
+dependencies {
   // 基础依赖
   implementation 'io.netty:netty-all:4.1.68.Final'
-
   // Lombok（必须分开声明）
   compileOnly 'org.projectlombok:lombok:1.18.30'
   annotationProcessor 'org.projectlombok:lombok:1.18.30'
-
   // JSON处理
   compileOnly 'com.alibaba:fastjson:1.2.71'
   implementation 'com.alibaba:fastjson:1.2.71'
-
   // MQTT客户端
   compileOnly 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
   implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
-
   // 文件解析
   compileOnly 'org.apache.tika:tika-core:2.9.0'
   implementation 'org.apache.tika:tika-core:2.9.0'
-
   // JSON Schema转换
   compileOnly 'org.jsonschema2pojo:jsonschema2pojo-core:1.2.2'
   implementation 'org.jsonschema2pojo:jsonschema2pojo-core:1.2.2'
-
   // SQL解析
   compileOnly 'com.github.jsqlparser:jsqlparser:3.2'
   implementation 'com.github.jsqlparser:jsqlparser:3.2'
-
   // 日志依赖
   compileOnly 'org.slf4j:slf4j-api:2.0.7'
   implementation 'org.slf4j:slf4j-api:2.0.7'
   runtimeOnly 'org.slf4j:slf4j-simple:2.0.7'
 
-  // JCEF依赖（暂时注释，使用IntelliJ内置JCEF）
-  // compileOnly 'me.friwi:jcefmaven:114.3.13'
-  // implementation 'me.friwi:jcefmaven:114.3.13'
+  // 核心修改1：删除外部JCEF依赖（me.friwi:jcefmaven）
+  // 核心修改2：依赖IntelliJ内置JCEF（通过intellijPlatform自动引入，无需手动添加）
 
-  // 【离线兜底】如果上面JCEF下载失败，注释上两行，取消下面注释（需手动放jar到libs目录）
-  // implementation files('libs/jcefmaven-114.3.13.jar')
-}
-
-// ===================== 编译兜底配置 =====================
-compileJava {
-  options.encoding = 'UTF-8'
-  options.compilerArgs.addAll(['-Xlint:unchecked', '-Xlint:deprecation'])
-  sourceCompatibility = JavaVersion.VERSION_17
-  targetCompatibility = JavaVersion.VERSION_17
-}
-
-java {
-  buildSearchableOptions.defaultCharacterEncoding = 'UTF-8'
-  sourceCompatibility = JavaVersion.VERSION_17
-  targetCompatibility = JavaVersion.VERSION_17
-}
-
-javadoc {
-  options.encoding = 'UTF-8'
-}
-
-// ===================== IDE运行配置 =====================
-runIde {
-  // 解析JavaFX模块路径
-  def javafxJars = configurations.runtimeClasspath.files.findAll {
-    it.name.startsWith('javafx-') && it.name.endsWith('.jar')
+  // IntelliJ平台依赖：指定IDE版本（2023.3），自动包含内置JCEF
+  intellijPlatform {
+    create('IC', '2023.3')
   }
-  def javafxModulePath = javafxJars.join(File.pathSeparator)
-
-  // JVM参数（语法严谨，无冗余）
-  jvmArgs = [
-          '-Xmx2048m',
-          '-Dfile.encoding=UTF-8',
-          '-Dsun.jnu.encoding=UTF-8',
-          "--module-path=${javafxModulePath}",
-          '--add-modules=javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.swing,javafx.web',
-          '--add-exports=javafx.web/com.sun.webkit.network=ALL-UNNAMED',
-          '--add-exports=javafx.web/com.sun.webkit.graphics=ALL-UNNAMED',
-          '--add-exports=javafx.web/com.sun.webkit.dom=ALL-UNNAMED',
-          '--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED',
-          '--add-exports=javafx.web/com.sun.webkit=ALL-UNNAMED',
-          '--add-opens=javafx.web/javafx.scene.web=ALL-UNNAMED',
-          '--add-opens=javafx.web/com.sun.javafx.scene.web=ALL-UNNAMED',
-          '--add-opens=javafx.web/com.sun.webkit=ALL-UNNAMED',
-          '-Djavafx.media.threads=8',
-          '-Dprism.forceGPU=false',
-          '-Djava.net.preferIPv4Stack=true',
-          '-Dsun.net.http.allowRestrictedHeaders=true',
-          '-Dwebkit.media.player.useNative=true'
-  ]
-
-  // 编码环境变量（标准Map写法）
-  environment([
-          'IDE_PROPERTIES_FILE_ENCODING': 'UTF-8',
-          'FILE_ENCODING': 'UTF-8'
-  ])
 }
 
-// ===================== 插件版本兼容 =====================
+// ===================== 插件版本兼容（确保支持内置JCEF的IDE版本） =====================
 patchPluginXml {
-  sinceBuild = '233.11799.241'
+  sinceBuild = '233.11799.241' // 对应2023.3版本（内置JCEF稳定支持）
   untilBuild = '241.18034.62'
 }
-
-// ===================== 本地库复制任务 =====================
-task copyJcefNatives(type: Copy) {
-  from configurations.runtimeClasspath
-  include '**/*.dll', '**/*.so', '**/*.dylib'
-  into "${buildDir}/classes/java/main/natives"
-}
-task testChineseOutput {
-  doLast {
-    println new String('测试中文输出：你好，世界！'.getBytes('UTF-8'), 'UTF-8')
-  }
-}
-classes.dependsOn(copyJcefNatives)

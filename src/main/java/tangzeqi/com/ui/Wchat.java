@@ -4,17 +4,15 @@ import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.ui.jcef.JBCefApp;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.util.IconUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jsonschema2pojo.DefaultGenerationConfig;
 import org.jsonschema2pojo.SourceType;
 import tangzeqi.com.broser.Broser;
 import tangzeqi.com.broser.MyJCEF;
-import tangzeqi.com.broser.MyWebView;
 import tangzeqi.com.project.MyProject;
 import tangzeqi.com.service.Chat;
 import tangzeqi.com.service.Config;
@@ -30,7 +28,10 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -408,15 +409,10 @@ public class Wchat extends JPanel implements Config, Chat {
 
     // 添加浏览器初始化方法
     private void initializeBrowser() {
-        if (!JBCefApp.isSupported()) {
-            browserContentPanel.add(new JLabel("当前环境不支持JCEF浏览器"));
-            return;
-        }
-
 //        browser = new MyWebView(project);
         browser = new MyJCEF(project);
         // 添加浏览器主视图
-        int i = 0;
+        // 直接添加浏览器组件，而不是遍历获取组件
         for (Component component : browser.getComponents()) {
             browserContentPanel.add(component, BorderLayout.CENTER);
         }
@@ -558,12 +554,13 @@ public class Wchat extends JPanel implements Config, Chat {
             ApplicationManager.getApplication().invokeLater(() -> {
                 // 创建通知组（确保类型为 BALLOON）
                 NotificationGroup group =
-                        new NotificationGroup(
+                        NotificationGroup.create(
                                 "Wchat Notifications",
                                 NotificationDisplayType.BALLOON,  // 关键：使用 BALLOON 类型
                                 true,
                                 "",
-                                IconUtil.getEditIcon()
+                                "",
+                                PluginId.findId()
                         );
                 // 创建并显示通知
                 Notification notification = group.createNotification(
