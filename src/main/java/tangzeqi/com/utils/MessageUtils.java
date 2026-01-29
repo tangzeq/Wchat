@@ -2,8 +2,8 @@ package tangzeqi.com.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import tangzeqi.com.stroge.BaseMessage;
-import tangzeqi.com.stroge.BaseUser;
+import tangzeqi.com.tools.chat.stroge.BaseMessage;
+import tangzeqi.com.tools.chat.stroge.BaseUser;
 
 /**
  * 功能描述：信息工具类

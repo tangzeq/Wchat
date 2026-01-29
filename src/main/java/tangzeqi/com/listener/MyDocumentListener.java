@@ -1,6 +1,5 @@
 package tangzeqi.com.listener;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
@@ -21,8 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import tangzeqi.com.action.SynergyAction;
 import tangzeqi.com.extensions.SynInLay;
 import tangzeqi.com.project.MyProject;
-import tangzeqi.com.stroge.SynergyMessage;
-import tangzeqi.com.utils.LineMarkerUtils;
+import tangzeqi.com.tools.chat.stroge.SynergyMessage;
 
 import java.util.Date;
 import java.util.List;

@@ -1,7 +1,7 @@
 package tangzeqi.com.ui;
 
-import tangzeqi.com.stroge.BaseUser;
-import tangzeqi.com.stroge.TextMessage;
+import tangzeqi.com.tools.chat.stroge.BaseUser;
+import tangzeqi.com.tools.chat.stroge.TextMessage;
 
 import javax.swing.*;
 import java.awt.*;

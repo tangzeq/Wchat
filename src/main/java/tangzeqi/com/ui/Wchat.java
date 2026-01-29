@@ -11,13 +11,15 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jsonschema2pojo.DefaultGenerationConfig;
 import org.jsonschema2pojo.SourceType;
-import tangzeqi.com.broser.Broser;
-import tangzeqi.com.broser.MyJCEF;
+import tangzeqi.com.tools.broser.Broser;
+import tangzeqi.com.tools.broser.server.MyJCEF;
+import tangzeqi.com.tools.mind.MindService;
+import tangzeqi.com.tools.mind.service.DefaultMindService;
 import tangzeqi.com.project.MyProject;
-import tangzeqi.com.service.Chat;
-import tangzeqi.com.service.Config;
-import tangzeqi.com.stroge.BaseUser;
-import tangzeqi.com.stroge.TextMessage;
+import tangzeqi.com.tools.chat.Chat;
+import tangzeqi.com.tools.chat.Config;
+import tangzeqi.com.tools.chat.stroge.BaseUser;
+import tangzeqi.com.tools.chat.stroge.TextMessage;
 import tangzeqi.com.utils.CodeGenerationUtils;
 import tangzeqi.com.utils.NetUtils;
 import tangzeqi.com.utils.SQLUtils;
@@ -31,6 +33,7 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -102,14 +105,15 @@ public class Wchat extends JPanel implements Config, Chat {
     private JButton encryptButton;
     private JButton decryptButton;
 
-    // AI助手标签页
-    private JPanel aiPanel;
-    private JScrollPane aiOutputScroll;
-    private JTextArea aiOutputArea;
-    private JPanel aiInputPanel;
-    private JTextField aiInputField;
-    private JButton aiTrainButton;
-    private JButton aiChatButton;
+    // 备忘录标签页
+    private MindService mind;
+    private JPanel mindPanel;
+    private JScrollPane mindOutputScroll;
+    private JTextArea mindOutputArea;
+    private JPanel mindInputPanel;
+    private JTextField mindInputField;
+    private JButton mindTrainButton;
+    private JButton mindChatButton;
 
 
     // 浏览器
@@ -126,6 +130,7 @@ public class Wchat extends JPanel implements Config, Chat {
 
     public Wchat(String project) {
         this.project = project;
+        this.mind = new DefaultMindService();
         $$$setupUI$$$();
         SwingUtilities.invokeLater(() -> {
             initializeConfig();
@@ -248,24 +253,26 @@ public class Wchat extends JPanel implements Config, Chat {
             }
         });
 
-        // AI助手事件处理
-        aiTrainButton.addActionListener(e -> {
-            String input = aiInputField.getText();
+        // 备忘录事件处理
+        mindTrainButton.addActionListener(e -> {
+            String input = mindInputField.getText();
             if (!input.isEmpty()) {
-                aiOutputArea.setText("开始训练...\n");
-                // TODO: 实现AI训练逻辑
-                aiOutputArea.append("训练完成！\n");
-                aiInputField.setText("");
+                mindOutputArea.setText("开始查找: 【" + input + "】相关信息\n");
+                mindOutputArea.append("查找结束: \n");
+                List<String> list = mind.get(input);
+                for (String s : list) {
+                    mindOutputArea.append(s+"\n");
+                }
+                mindInputField.setText("");
             }
         });
 
-        aiChatButton.addActionListener(e -> {
-            String input = aiInputField.getText();
+        mindChatButton.addActionListener(e -> {
+            String input = mindInputField.getText();
             if (!input.isEmpty()) {
-                aiOutputArea.append("You: " + input + "\n");
-                // TODO: 实现AI对话逻辑
-                aiOutputArea.append("AI: 这是AI的回复\n");
-                aiInputField.setText("");
+                mindOutputArea.setText("开始记忆...\n");
+                mindOutputArea.append(mind.set(input)+"\n");
+                mindInputField.setText("");
             }
         });
 
@@ -1144,28 +1151,28 @@ public class Wchat extends JPanel implements Config, Chat {
         decryptButton = new JButton();
         decryptButton.setText("解密工具");
         panel11.add(decryptButton);
-        aiPanel = new JPanel();
-        aiPanel.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
-        mainTabs.addTab("AI助手", aiPanel);
-        aiOutputScroll = new JScrollPane();
-        aiPanel.add(aiOutputScroll, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        aiOutputScroll.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "输出", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
-        aiOutputArea = new JTextArea();
-        aiOutputArea.setEditable(false);
-        aiOutputArea.setLineWrap(true);
-        aiOutputArea.setWrapStyleWord(true);
-        aiOutputScroll.setViewportView(aiOutputArea);
+        mindPanel = new JPanel();
+        mindPanel.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        mainTabs.addTab("记忆库", mindPanel);
+        mindOutputScroll = new JScrollPane();
+        mindPanel.add(mindOutputScroll, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        mindOutputScroll.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "记忆", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        mindOutputArea = new JTextArea();
+        mindOutputArea.setEditable(false);
+        mindOutputArea.setLineWrap(true);
+        mindOutputArea.setWrapStyleWord(true);
+        mindOutputScroll.setViewportView(mindOutputArea);
         final JPanel panel12 = new JPanel();
         panel12.setLayout(new GridLayoutManager(1, 3, new Insets(5, 5, 5, 5), -1, -1));
-        aiPanel.add(panel12, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        aiInputField = new JTextField();
-        panel12.add(aiInputField, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        aiTrainButton = new JButton();
-        aiTrainButton.setText("AI训练");
-        panel12.add(aiTrainButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        aiChatButton = new JButton();
-        aiChatButton.setText("AI对话");
-        panel12.add(aiChatButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mindPanel.add(panel12, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mindInputField = new JTextField();
+        panel12.add(mindInputField, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mindTrainButton = new JButton();
+        mindTrainButton.setText("回忆");
+        panel12.add(mindTrainButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mindChatButton = new JButton();
+        mindChatButton.setText("记住");
+        panel12.add(mindChatButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

@@ -1,7 +1,7 @@
 package tangzeqi.com.project;
 
 import com.intellij.openapi.project.Project;
-import tangzeqi.com.service.ChatService;
+import tangzeqi.com.tools.chat.server.ChatService;
 
 import java.util.concurrent.ConcurrentHashMap;
 
