@@ -60,7 +60,7 @@
                         </constraints>
                         <properties>
                           <text value="127.0.0.1"/>
-                          <preferredSize width="100" height="20"/>
+                          <preferredSize width="120" height="20"/>
                         </properties>
                       </component>
                       <component id="label2" class="javax.swing.JLabel">
@@ -77,7 +77,7 @@
                         </constraints>
                         <properties>
                           <text value="8080"/>
-                          <preferredSize width="100" height="20"/>
+                          <preferredSize width="120" height="20"/>
                         </properties>
                       </component>
                       <component id="createChatButton" class="javax.swing.JButton" binding="createChatButton">
@@ -112,6 +112,7 @@
                         </constraints>
                         <properties>
                           <text value="127.0.0.1"/>
+                          <preferredSize width="120" height="20"/>
                         </properties>
                       </component>
                       <component id="label4" class="javax.swing.JLabel">
@@ -128,6 +129,7 @@
                         </constraints>
                         <properties>
                           <text value="8080"/>
+                          <preferredSize width="120" height="20"/>
                         </properties>
                       </component>
                       <component id="joinChatButton" class="javax.swing.JButton" binding="joinChatButton">
@@ -162,6 +164,7 @@
                         </constraints>
                         <properties>
                           <text value="用户"/>
+                          <preferredSize width="120" height="20"/>
                         </properties>
                       </component>
                     </children>
@@ -182,11 +185,16 @@
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <verticalScrollBarPolicy value="SCROLLBARS_ALWAYS"/>
+                      <horizontalScrollBarPolicy value="SCROLLBARS_AS_NEEDED"/>
+                    </properties>
                     <border type="etched" title="聊天信息"/>
                     <children>
                       <component id="chatMessageList" class="javax.swing.JList" binding="chatMessageList">
-                        <constraints/>
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
                         <properties/>
                       </component>
                     </children>
@@ -203,7 +211,9 @@
                         <constraints>
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                         </constraints>
-                        <properties/>
+                        <properties>
+                          <preferredSize width="400" height="20"/>
+                        </properties>
                       </component>
                       <component id="sendButton" class="javax.swing.JButton" binding="sendButton">
                         <constraints>
@@ -223,11 +233,16 @@
                     <preferred-size width="200" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <verticalScrollBarPolicy value="SCROLLBARS_ALWAYS"/>
+                  <horizontalScrollBarPolicy value="SCROLLBARS_AS_NEEDED"/>
+                </properties>
                 <border type="etched" title="聊天室列表"/>
                 <children>
                   <component id="chatRoomList" class="javax.swing.JList" binding="chatRoomList">
-                    <constraints/>
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
                     <properties/>
                   </component>
                 </children>
@@ -251,14 +266,15 @@
                 <border type="etched" title="路径"/>
                 <children>
                   <component id="folderPathField" class="javax.swing.JTextField" binding="folderPathField">
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="3" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <editable value="false"/>
-                      <margin top="2" left="6" bottom="2" right="6"/>
-                    </properties>
-                  </component>
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <editable value="false"/>
+                          <margin top="2" left="6" bottom="2" right="6"/>
+                          <preferredSize width="500" height="20"/>
+                        </properties>
+                      </component>
                   <component id="browseButton" class="javax.swing.JButton" binding="browseButton">
                     <constraints>
                       <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -275,11 +291,16 @@
                     <preferred-size width="200" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <verticalScrollBarPolicy value="SCROLLBARS_ALWAYS"/>
+                  <horizontalScrollBarPolicy value="SCROLLBARS_AS_NEEDED"/>
+                </properties>
                 <border type="etched" title="文件列表"/>
                 <children>
                   <component id="fileList" class="javax.swing.JList" binding="fileList">
-                    <constraints/>
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
                     <properties/>
                   </component>
                 </children>
@@ -298,15 +319,21 @@
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <verticalScrollBarPolicy value="SCROLLBARS_ALWAYS"/>
+                      <horizontalScrollBarPolicy value="SCROLLBARS_AS_NEEDED"/>
+                    </properties>
                     <border type="none"/>
                     <children>
                       <component id="fileContentArea" class="javax.swing.JTextArea" binding="fileContentArea">
-                        <constraints/>
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
                         <properties>
                           <editable value="false"/>
                           <lineWrap value="true"/>
                           <wrapStyleWord value="true"/>
+                          <preferredSize width="600" height="300"/>
                         </properties>
                       </component>
                     </children>
@@ -336,7 +363,7 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <preferredSize width="0" height="25"/>
+                      <preferredSize width="600" height="25"/>
                       <text value="https://www.cnblogs.com/tangzeqi"/>
                     </properties>
                   </component>
@@ -384,14 +411,20 @@
                         <preferred-size width="500" height="-1"/>
                       </grid>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <verticalScrollBarPolicy value="SCROLLBARS_ALWAYS"/>
+                      <horizontalScrollBarPolicy value="SCROLLBARS_AS_NEEDED"/>
+                    </properties>
                     <border type="etched" title="输入"/>
                     <children>
                       <component id="inputArea" class="javax.swing.JTextArea" binding="inputArea">
-                        <constraints/>
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
                         <properties>
                           <lineWrap value="true"/>
                           <wrapStyleWord value="true"/>
+                          <preferredSize width="400" height="200"/>
                         </properties>
                       </component>
                     </children>
@@ -402,15 +435,21 @@
                         <preferred-size width="500" height="-1"/>
                       </grid>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <verticalScrollBarPolicy value="SCROLLBARS_ALWAYS"/>
+                      <horizontalScrollBarPolicy value="SCROLLBARS_AS_NEEDED"/>
+                    </properties>
                     <border type="etched" title="输出"/>
                     <children>
                       <component id="outputArea" class="javax.swing.JTextArea" binding="outputArea">
-                        <constraints/>
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
                         <properties>
                           <editable value="false"/>
                           <lineWrap value="true"/>
                           <wrapStyleWord value="true"/>
+                          <preferredSize width="400" height="200"/>
                         </properties>
                       </component>
                     </children>
@@ -470,15 +509,21 @@
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
-                <properties/>
+                <properties>
+                  <verticalScrollBarPolicy value="SCROLLBARS_ALWAYS"/>
+                  <horizontalScrollBarPolicy value="SCROLLBARS_ALWAYS"/>
+                </properties>
                 <border type="etched" title="记忆"/>
                 <children>
                   <component id="mindOutputArea" class="javax.swing.JTextArea" binding="mindOutputArea">
-                    <constraints/>
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
                     <properties>
                       <editable value="false"/>
                       <lineWrap value="true"/>
                       <wrapStyleWord value="true"/>
+                      <preferredSize width="800" height="300"/>
                     </properties>
                   </component>
                 </children>
@@ -495,7 +540,9 @@
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <preferredSize width="500" height="20"/>
+                    </properties>
                   </component>
                   <component id="mindTrainButton" class="javax.swing.JButton" binding="mindTrainButton">
                     <constraints>

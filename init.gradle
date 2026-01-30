@@ -1,0 +1,31 @@
+// 全局 Gradle 编码配置
+allprojects {
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+    
+    tasks.withType(GroovyCompile) {
+        options.encoding = 'UTF-8'
+    }
+    
+    tasks.withType(ScalaCompile) {
+        options.encoding = 'UTF-8'
+    }
+    
+    tasks.withType(Javadoc) {
+        options.encoding = 'UTF-8'
+    }
+    
+    // 确保测试任务使用 UTF-8
+    tasks.withType(Test) {
+        systemProperty 'file.encoding', 'UTF-8'
+        systemProperty 'sun.jnu.encoding', 'UTF-8'
+    }
+}
+
+// 配置 Gradle 守护进程编码
+if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+    System.setProperty('file.encoding', 'UTF-8')
+    System.setProperty('sun.jnu.encoding', 'UTF-8')
+    System.setProperty('console.encoding', 'UTF-8')
+}

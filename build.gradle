@@ -80,3 +80,12 @@ patchPluginXml {
   sinceBuild = '233.11799.241' // 对应2023.3版本（内置JCEF稳定支持）
   untilBuild = '999.99999.999'
 }
+
+// ===================== 自定义任务：存储知识库 =====================
+task storeKnowledgeBase(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+  mainClass = 'tangzeqi.com.tools.mind.KnowledgeBaseTest'
+  workingDir = projectDir
+}
+
+

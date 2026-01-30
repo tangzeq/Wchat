@@ -105,7 +105,7 @@ public class Wchat extends JPanel implements Config, Chat {
     private JButton encryptButton;
     private JButton decryptButton;
 
-    // 备忘录标签页
+    // 记忆库标签页
     private MindService mind;
     private JPanel mindPanel;
     private JScrollPane mindOutputScroll;
@@ -130,16 +130,26 @@ public class Wchat extends JPanel implements Config, Chat {
 
     public Wchat(String project) {
         this.project = project;
-        this.mind = new DefaultMindService();
         $$$setupUI$$$();
         SwingUtilities.invokeLater(() -> {
-            initializeConfig();
-            setupEventHandlers();
-            startChatRoomListUpdater();
+            initChatRoom();
             initializeBrowser();
+            initMind();
         });
         MyProject.cache(project).chat = this;
         MyProject.cache(project).config = this;
+    }
+
+    private void initChatRoom() {
+        initializeConfig();
+        setupEventHandlers();
+        startChatRoomListUpdater();
+    }
+
+    private void initMind() {
+        this.mind = new DefaultMindService();
+        // 为记忆库面板添加右键菜单
+        setupMindPanelContextMenu();
     }
 
     private void initializeConfig() {
@@ -158,6 +168,110 @@ public class Wchat extends JPanel implements Config, Chat {
         chatMessageList.setLayoutOrientation(JList.VERTICAL);
         // 使用自定义的布局管理器来处理不同高度的单元格
         chatMessageList.setLayout(new BoxLayout(chatMessageList, BoxLayout.Y_AXIS));
+        
+        // 设置所有滚动面板的滚动条策略和大小策略
+        setupScrollPanes();
+    }
+
+    private void setupScrollPanes() {
+        // 设置聊天消息滚动面板
+        chatMessageScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        chatMessageScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        chatMessageScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
+        
+        // 设置聊天室列表滚动面板
+        chatRoomScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        chatRoomScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        chatRoomScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
+        
+        // 设置文件列表滚动面板
+        fileListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        fileListScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        fileListScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
+        
+        // 设置文件内容滚动面板
+        fileContentScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        fileContentScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        fileContentScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
+        
+        // 设置工具箱输入滚动面板
+        inputScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        inputScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        inputScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
+        
+        // 设置工具箱输出滚动面板
+        outputScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        outputScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        outputScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
+        
+        // 设置记忆库输出滚动面板
+        mindOutputScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        mindOutputScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        mindOutputScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
+        
+        // 确保文本区域能够随滚动面板一起调整大小
+        setComponentSizePolicy(inputArea);
+        setComponentSizePolicy(outputArea);
+        setComponentSizePolicy(fileContentArea);
+        setComponentSizePolicy(mindOutputArea);
+        
+        // 确保列表能够随滚动面板一起调整大小
+        setComponentSizePolicy(chatMessageList);
+        setComponentSizePolicy(chatRoomList);
+        setComponentSizePolicy(fileList);
+    }
+
+    /**
+     * 设置组件的大小策略，使其能够随父容器一起调整大小
+     */
+    private void setComponentSizePolicy(JComponent component) {
+        component.setPreferredSize(null); // 移除首选大小
+        component.setMaximumSize(null); // 移除最大大小
+        component.setMinimumSize(null); // 移除最小大小
+        // 对于文本区域，确保其能够自动换行
+        if (component instanceof JTextArea) {
+            JTextArea textArea = (JTextArea) component;
+            textArea.setLineWrap(true);
+            textArea.setWrapStyleWord(true);
+        }
+        // 对于列表，确保其能够显示多行
+        if (component instanceof JList) {
+            JList<?> list = (JList<?>) component;
+            list.setVisibleRowCount(-1); // 允许显示任意行数
+        }
+    }
+
+    private void setupMindPanelContextMenu() {
+        // 创建右键菜单
+        JPopupMenu contextMenu = new JPopupMenu();
+        JMenuItem openFolderItem = new JMenuItem("打开记忆库");
+        openFolderItem.addActionListener(e -> {
+            try {
+                // 获取记忆库存储目录路径
+                String mindFolderPath = System.getProperty("user.home") + "/.mind-idea-plugin";
+                File mindFolder = new File(mindFolderPath);
+                
+                // 确保目录存在
+                if (!mindFolder.exists()) {
+                    mindFolder.mkdirs();
+                }
+                
+                // 打开文件夹
+                Desktop.getDesktop().open(mindFolder);
+            } catch (Exception ex) {
+                addChatMessage(SYS.getValue(), "打开记忆库文件夹失败: " + ex.getMessage());
+            }
+        });
+        contextMenu.add(openFolderItem);
+        
+        // 为记忆库输出区域添加右键菜单
+        mindOutputArea.setComponentPopupMenu(contextMenu);
+        
+        // 为记忆库输入面板添加右键菜单
+        mindInputPanel.setComponentPopupMenu(contextMenu);
+        
+        // 为整个记忆库面板添加右键菜单
+        mindPanel.setComponentPopupMenu(contextMenu);
     }
 
     private void setupEventHandlers() {
@@ -253,7 +367,7 @@ public class Wchat extends JPanel implements Config, Chat {
             }
         });
 
-        // 备忘录事件处理
+        // 记忆库事件处理
         mindTrainButton.addActionListener(e -> {
             String input = mindInputField.getText();
             if (!input.isEmpty()) {
@@ -261,7 +375,7 @@ public class Wchat extends JPanel implements Config, Chat {
                 mindOutputArea.append("查找结束: \n");
                 List<String> list = mind.get(input);
                 for (String s : list) {
-                    mindOutputArea.append(s+"\n");
+                    mindOutputArea.append(s + "\n");
                 }
                 mindInputField.setText("");
             }
@@ -271,7 +385,7 @@ public class Wchat extends JPanel implements Config, Chat {
             String input = mindInputField.getText();
             if (!input.isEmpty()) {
                 mindOutputArea.setText("开始记忆...\n");
-                mindOutputArea.append(mind.set(input)+"\n");
+                mindOutputArea.append(mind.set(input) + "\n");
                 mindInputField.setText("");
             }
         });
@@ -1004,12 +1118,14 @@ public class Wchat extends JPanel implements Config, Chat {
         label1.setText("IP：");
         panel2.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         ipField = new JTextField();
+        ipField.setPreferredSize(new Dimension(120, 20));
         ipField.setText("127.0.0.1");
         panel2.add(ipField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
         label2.setText("端口：");
         panel2.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         portField = new JTextField();
+        portField.setPreferredSize(new Dimension(120, 20));
         portField.setText("8080");
         panel2.add(portField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         createChatButton = new JButton();
@@ -1023,12 +1139,14 @@ public class Wchat extends JPanel implements Config, Chat {
         label3.setText("IP：");
         panel3.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         joinIpField = new JTextField();
+        joinIpField.setPreferredSize(new Dimension(120, 20));
         joinIpField.setText("127.0.0.1");
         panel3.add(joinIpField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label4 = new JLabel();
         label4.setText("端口：");
         panel3.add(label4, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         joinPortField = new JTextField();
+        joinPortField.setPreferredSize(new Dimension(120, 20));
         joinPortField.setText("8080");
         panel3.add(joinPortField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         joinChatButton = new JButton();
@@ -1042,6 +1160,7 @@ public class Wchat extends JPanel implements Config, Chat {
         label5.setText("昵称：");
         panel4.add(label5, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         nicknameField = new JTextField();
+        nicknameField.setPreferredSize(new Dimension(120, 20));
         nicknameField.setText("用户");
         panel4.add(nicknameField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel5 = new JPanel();
@@ -1057,6 +1176,7 @@ public class Wchat extends JPanel implements Config, Chat {
         panel5.add(panel6, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         panel6.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "发送消息", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         messageField = new JTextField();
+        messageField.setPreferredSize(new Dimension(400, 20));
         panel6.add(messageField, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sendButton = new JButton();
         sendButton.setText("发送");
@@ -1076,6 +1196,7 @@ public class Wchat extends JPanel implements Config, Chat {
         folderPathField = new JTextField();
         folderPathField.setEditable(false);
         folderPathField.setMargin(new Insets(2, 6, 2, 6));
+        folderPathField.setPreferredSize(new Dimension(500, 20));
         panel7.add(folderPathField, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         browseButton = new JButton();
         browseButton.setText("浏览");
@@ -1094,6 +1215,7 @@ public class Wchat extends JPanel implements Config, Chat {
         fileContentArea = new JTextArea();
         fileContentArea.setEditable(false);
         fileContentArea.setLineWrap(true);
+        fileContentArea.setPreferredSize(new Dimension(600, 300));
         fileContentArea.setWrapStyleWord(true);
         fileContentScroll.setViewportView(fileContentArea);
         browserPanel = new JPanel();
@@ -1103,7 +1225,7 @@ public class Wchat extends JPanel implements Config, Chat {
         panel9.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         browserPanel.add(panel9, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         urlField = new JTextField();
-        urlField.setPreferredSize(new Dimension(0, 25));
+        urlField.setPreferredSize(new Dimension(600, 25));
         urlField.setText("https://www.cnblogs.com/tangzeqi");
         panel9.add(urlField, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         goButton = new JButton();
@@ -1122,6 +1244,7 @@ public class Wchat extends JPanel implements Config, Chat {
         inputScroll.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "输入", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         inputArea = new JTextArea();
         inputArea.setLineWrap(true);
+        inputArea.setPreferredSize(new Dimension(400, 200));
         inputArea.setWrapStyleWord(true);
         inputScroll.setViewportView(inputArea);
         outputScroll = new JScrollPane();
@@ -1130,6 +1253,7 @@ public class Wchat extends JPanel implements Config, Chat {
         outputArea = new JTextArea();
         outputArea.setEditable(false);
         outputArea.setLineWrap(true);
+        outputArea.setPreferredSize(new Dimension(400, 200));
         outputArea.setWrapStyleWord(true);
         outputScroll.setViewportView(outputArea);
         final JPanel panel11 = new JPanel();
@@ -1160,12 +1284,14 @@ public class Wchat extends JPanel implements Config, Chat {
         mindOutputArea = new JTextArea();
         mindOutputArea.setEditable(false);
         mindOutputArea.setLineWrap(true);
+        mindOutputArea.setPreferredSize(new Dimension(800, 300));
         mindOutputArea.setWrapStyleWord(true);
         mindOutputScroll.setViewportView(mindOutputArea);
         final JPanel panel12 = new JPanel();
         panel12.setLayout(new GridLayoutManager(1, 3, new Insets(5, 5, 5, 5), -1, -1));
         mindPanel.add(panel12, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         mindInputField = new JTextField();
+        mindInputField.setPreferredSize(new Dimension(500, 20));
         panel12.add(mindInputField, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         mindTrainButton = new JButton();
         mindTrainButton.setText("回忆");
