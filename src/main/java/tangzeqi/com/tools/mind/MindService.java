@@ -11,9 +11,9 @@ public interface MindService {
     public String set(String mind);
 
     /**
-     * 根据输入内容从永久记忆中查找，并按优先级获取前十条
+     * 根据输入内容从永久记忆中查找，并按优先级获取前十条，支持进度回调
      * @param mind
-     * @return
+     * @param listener
      */
-    public List<String> get(String mind);
+    public void get(String mind, MindProgressListener listener);
 }

@@ -13,8 +13,10 @@ import org.jsonschema2pojo.DefaultGenerationConfig;
 import org.jsonschema2pojo.SourceType;
 import tangzeqi.com.tools.broser.Broser;
 import tangzeqi.com.tools.broser.server.MyJCEF;
+import tangzeqi.com.tools.mind.MindProgressListener;
+import tangzeqi.com.tools.mind.MindProgressUIListener;
 import tangzeqi.com.tools.mind.MindService;
-import tangzeqi.com.tools.mind.service.DefaultMindService;
+import tangzeqi.com.tools.mind.LightweightMindService;
 import tangzeqi.com.project.MyProject;
 import tangzeqi.com.tools.chat.Chat;
 import tangzeqi.com.tools.chat.Config;
@@ -33,10 +35,10 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import javax.swing.SwingUtilities;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -147,7 +149,7 @@ public class Wchat extends JPanel implements Config, Chat {
     }
 
     private void initMind() {
-        this.mind = new DefaultMindService();
+        this.mind = new LightweightMindService();
         // 为记忆库面板添加右键菜单
         setupMindPanelContextMenu();
     }
@@ -371,13 +373,19 @@ public class Wchat extends JPanel implements Config, Chat {
         mindTrainButton.addActionListener(e -> {
             String input = mindInputField.getText();
             if (!input.isEmpty()) {
-                mindOutputArea.setText("开始查找: 【" + input + "】相关信息\n");
-                mindOutputArea.append("查找结束: \n");
-                List<String> list = mind.get(input);
-                for (String s : list) {
-                    mindOutputArea.append(s + "\n");
-                }
-                mindInputField.setText("");
+                // 创建进度监听器
+                MindProgressListener listener = new MindProgressUIListener(mindOutputArea);
+                new Thread(()->{
+                    mindTrainButton.setEnabled(false);
+                    mindChatButton.setEnabled(false);
+                    mind.get(input, listener);
+                    SwingUtilities.invokeLater(() -> {
+                        mindInputField.setText("");
+                        mindOutputArea.setCaretPosition(mindOutputArea.getDocument().getLength());
+                        mindTrainButton.setEnabled(true);
+                        mindChatButton.setEnabled(true);
+                    });
+                }).start();
             }
         });
 
@@ -387,6 +395,16 @@ public class Wchat extends JPanel implements Config, Chat {
                 mindOutputArea.setText("开始记忆...\n");
                 mindOutputArea.append(mind.set(input) + "\n");
                 mindInputField.setText("");
+            }
+        });
+
+        // 为记忆库输入框添加回车键监听事件
+        mindInputField.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    mindTrainButton.doClick();
+                }
             }
         });
 
