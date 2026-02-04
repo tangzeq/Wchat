@@ -1,4 +1,4 @@
-package tangzeqi.com.tools.mind;
+package tangzeqi.com.tools.mind.server;
 
 import java.util.List;
 
@@ -21,6 +21,13 @@ public interface MindProgressListener {
      * @param fileCount 处理的文件数
      * @param memoryCount 处理的记忆数
      */
-    void onComplete(List<String> results,int fileCount, int memoryCount);
+    void onComplete(List<ScoredEntry> results,int fileCount, int memoryCount);
+
+    /**
+     * 查找结束显示搜索结果
+     * @param fileCount 处理的文件数
+     * @param memoryCount 处理的记忆数
+     */
+    void onSave(int fileCount, int memoryCount,boolean save);
 
 }

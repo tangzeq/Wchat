@@ -21,7 +21,7 @@
         <em>5.    Added several formatting tools to enhance code readability and consistency.</em><br>
         ]]></description>
     <change-notes><![CDATA[
-        <h2>2026.02.02</h2>
+        <h2>2026.02.04</h2>
         <ul>
             <li>优化-记忆库：平衡架构，用来支持无上限的记忆库文件和记忆；简化记忆库文件格式，用以支持最为简洁的记忆信息（一行文本一条记忆）</li>
         </ul>

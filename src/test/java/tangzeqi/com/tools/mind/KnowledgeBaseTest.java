@@ -1,6 +1,6 @@
 package tangzeqi.com.tools.mind;
 
-import tangzeqi.com.tools.mind.service.DefaultMindService;
+import tangzeqi.com.tools.mind.server.LightweightMindService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -9,10 +9,10 @@ import java.util.List;
 public class KnowledgeBaseTest {
     public static void main(String[] args) {
         // 创建MindService实例
-        MindService mindService = new DefaultMindService();
+        MindService mindService = new LightweightMindService();
         
         // 知识库文件路径
-        String knowledgeBasePath = "d:\\ideaWorkSpace\\chat\\src\\test\\java\\tangzeqi\\com\\tools\\mind\\知识库.txt";
+        String knowledgeBasePath = "知识库.txt";
         
         try {
             // 读取知识库文件内容
@@ -21,8 +21,7 @@ public class KnowledgeBaseTest {
             // 遍历每一行并存储
             for (String line : lines) {
                 if (!line.trim().isEmpty()) {
-                    String result = mindService.set(line);
-                    System.out.println("存储结果: " + result);
+                    mindService.set(line, null);
                 }
             }
             

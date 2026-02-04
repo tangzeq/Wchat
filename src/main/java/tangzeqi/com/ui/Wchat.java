@@ -13,10 +13,10 @@ import org.jsonschema2pojo.DefaultGenerationConfig;
 import org.jsonschema2pojo.SourceType;
 import tangzeqi.com.tools.broser.Broser;
 import tangzeqi.com.tools.broser.server.MyJCEF;
-import tangzeqi.com.tools.mind.MindProgressListener;
-import tangzeqi.com.tools.mind.MindProgressUIListener;
+import tangzeqi.com.tools.mind.server.MindProgressListener;
+import tangzeqi.com.tools.mind.server.MindProgressUIListener;
 import tangzeqi.com.tools.mind.MindService;
-import tangzeqi.com.tools.mind.LightweightMindService;
+import tangzeqi.com.tools.mind.server.LightweightMindService;
 import tangzeqi.com.project.MyProject;
 import tangzeqi.com.tools.chat.Chat;
 import tangzeqi.com.tools.chat.Config;
@@ -29,6 +29,8 @@ import tangzeqi.com.utils.SQLUtils;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
@@ -170,7 +172,7 @@ public class Wchat extends JPanel implements Config, Chat {
         chatMessageList.setLayoutOrientation(JList.VERTICAL);
         // 使用自定义的布局管理器来处理不同高度的单元格
         chatMessageList.setLayout(new BoxLayout(chatMessageList, BoxLayout.Y_AXIS));
-        
+
         // 设置所有滚动面板的滚动条策略和大小策略
         setupScrollPanes();
     }
@@ -180,43 +182,43 @@ public class Wchat extends JPanel implements Config, Chat {
         chatMessageScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         chatMessageScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         chatMessageScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
-        
+
         // 设置聊天室列表滚动面板
         chatRoomScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         chatRoomScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         chatRoomScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
-        
+
         // 设置文件列表滚动面板
         fileListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         fileListScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         fileListScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
-        
+
         // 设置文件内容滚动面板
         fileContentScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         fileContentScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         fileContentScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
-        
+
         // 设置工具箱输入滚动面板
         inputScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         inputScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         inputScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
-        
+
         // 设置工具箱输出滚动面板
         outputScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         outputScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         outputScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
-        
+
         // 设置记忆库输出滚动面板
         mindOutputScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         mindOutputScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         mindOutputScroll.setPreferredSize(null); // 移除首选大小，让其自动适应父容器
-        
+
         // 确保文本区域能够随滚动面板一起调整大小
         setComponentSizePolicy(inputArea);
         setComponentSizePolicy(outputArea);
         setComponentSizePolicy(fileContentArea);
         setComponentSizePolicy(mindOutputArea);
-        
+
         // 确保列表能够随滚动面板一起调整大小
         setComponentSizePolicy(chatMessageList);
         setComponentSizePolicy(chatRoomList);
@@ -252,12 +254,12 @@ public class Wchat extends JPanel implements Config, Chat {
                 // 获取记忆库存储目录路径
                 String mindFolderPath = System.getProperty("user.home") + "/.mind-idea-plugin";
                 File mindFolder = new File(mindFolderPath);
-                
+
                 // 确保目录存在
                 if (!mindFolder.exists()) {
                     mindFolder.mkdirs();
                 }
-                
+
                 // 打开文件夹
                 Desktop.getDesktop().open(mindFolder);
             } catch (Exception ex) {
@@ -265,13 +267,13 @@ public class Wchat extends JPanel implements Config, Chat {
             }
         });
         contextMenu.add(openFolderItem);
-        
+
         // 为记忆库输出区域添加右键菜单
         mindOutputArea.setComponentPopupMenu(contextMenu);
-        
+
         // 为记忆库输入面板添加右键菜单
         mindInputPanel.setComponentPopupMenu(contextMenu);
-        
+
         // 为整个记忆库面板添加右键菜单
         mindPanel.setComponentPopupMenu(contextMenu);
     }
@@ -375,7 +377,7 @@ public class Wchat extends JPanel implements Config, Chat {
             if (!input.isEmpty()) {
                 // 创建进度监听器
                 MindProgressListener listener = new MindProgressUIListener(mindOutputArea);
-                new Thread(()->{
+                new Thread(() -> {
                     mindTrainButton.setEnabled(false);
                     mindChatButton.setEnabled(false);
                     mind.get(input, listener);
@@ -392,17 +394,25 @@ public class Wchat extends JPanel implements Config, Chat {
         mindChatButton.addActionListener(e -> {
             String input = mindInputField.getText();
             if (!input.isEmpty()) {
-                mindOutputArea.setText("开始记忆...\n");
-                mindOutputArea.append(mind.set(input) + "\n");
-                mindInputField.setText("");
+                input = input.trim();
+                mindTrainButton.setEnabled(false);
+                mindChatButton.setEnabled(false);
+                MindProgressListener listener = new MindProgressUIListener(mindOutputArea);
+                mind.set(input, listener);
+                SwingUtilities.invokeLater(() -> {
+                    mindInputField.setText("");
+                    mindOutputArea.setCaretPosition(mindOutputArea.getDocument().getLength());
+                    mindTrainButton.setEnabled(true);
+                    mindChatButton.setEnabled(true);
+                });
             }
         });
 
         // 为记忆库输入框添加回车键监听事件
-        mindInputField.addKeyListener(new java.awt.event.KeyAdapter() {
+        mindInputField.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyPressed(java.awt.event.KeyEvent e) {
-                if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     mindTrainButton.doClick();
                 }
             }

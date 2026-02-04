@@ -1,6 +1,7 @@
-package tangzeqi.com.tools.mind;
+package tangzeqi.com.tools.mind.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import tangzeqi.com.tools.mind.MindService;
 import tangzeqi.com.utils.StringUtils;
 
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -37,34 +39,66 @@ public class LightweightMindService implements MindService {
     }
 
     @Override
-    public String set(String mind) {
+    public void set(String mind, MindProgressListener listener) {
+        // 参数验证
         if (mind == null || mind.trim().isEmpty()) {
-            return null;
+            if (listener != null) {
+                listener.onComplete(Collections.emptyList(), 0, 0);
+            }
         }
 
         String trimmedMind = mind.trim();
 
-        // 基于文件的去重检查（支持多格式）
-        if (isDuplicate(trimmedMind)) {
-            return "DUPLICATE";
-        }
-
         try {
-            // 获取或创建合适的文件
-            Path targetFile = getOrCreateFile();
 
-            // 追加写入到文件
-            String entry = System.currentTimeMillis() + "|" + trimmedMind;
-            Files.write(targetFile,
-                    Collections.singletonList(entry),
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.APPEND);
+            // 开始处理
+            if (listener != null) {
+                listener.onStart(trimmedMind);
+            }
 
-            return entry;
-        } catch (IOException e) {
+            // 基于文件的去重检查
+            AtomicInteger fileCount = new AtomicInteger(0);
+            AtomicInteger lineCount = new AtomicInteger(0);
+            AtomicBoolean unSet = new AtomicBoolean(false);
+            if (listener != null) {
+                if (Files.exists(STORAGE_DIR) && Files.isDirectory(STORAGE_DIR)) {
+                    // 直接使用Files.walk流式处理，不收集到列表
+                    try (Stream<Path> walk = Files.walk(STORAGE_DIR, 10)) { // 递归深度10
+                        // 并行去重检查
+                        walk.parallel().forEach(file -> {
+                            try (Stream<String> lines = Files.lines(file)) {
+                                lines.parallel().forEach(line -> {
+                                    int currentFile = fileCount.incrementAndGet();
+                                    int currentLine = lineCount.incrementAndGet();
+                                    if (listener != null) {
+                                        listener.onSearchProgress(currentFile, currentLine);
+                                    }
+                                    if (line != null && !line.trim().isEmpty()) {
+                                        String extractedContent = extractContent(line, file);
+                                        unSet.set(extractedContent != null && extractedContent.equals(trimmedMind));
+                                    }
+                                });
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                }
+            }
+            if(!unSet.get()) {
+                // 获取或创建合适的文件
+                Path targetFile = getOrCreateFile();
+                // 追加写入到文件
+                Files.write(targetFile,
+                        Collections.singletonList(trimmedMind),
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.APPEND);
+            }
+            listener.onSave(fileCount.get(), lineCount.get(),!unSet.get());
+        } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+
     }
 
     @Override
@@ -101,11 +135,7 @@ public class LightweightMindService implements MindService {
                     // 单次遍历：直接并行处理文件内容，不计算总文件数
                     try (Stream<Path> walk = Files.walk(STORAGE_DIR, 10)) { // 递归深度10
                         // 直接并行处理，不收集到列表，只处理.txt和.json文件
-                        walk.filter(path -> {
-                            String name = path.getFileName().toString();
-                            return (name.endsWith(".txt") || name.endsWith(".json")) &&
-                                   Files.isRegularFile(path);
-                        }).parallel().forEach(file -> {
+                        walk.parallel().forEach(file -> {
                             try (Stream<String> lines = Files.lines(file)) {
                                 // 直接处理流，不设置行处理上限
                                 lines.parallel().forEach(line -> {
@@ -138,6 +168,7 @@ public class LightweightMindService implements MindService {
                                     listener.onSearchProgress(currentFileCount, processedLines.get());
                                 }
                             } catch (IOException e) {
+                                e.printStackTrace();
                                 // 处理失败，不增加文件计数，避免错误统计
                                 if (listener != null) {
                                     listener.onSearchProgress(processedFiles.get(), processedLines.get());
@@ -159,22 +190,10 @@ public class LightweightMindService implements MindService {
                 return;
             }
 
-
             // 转换为排序后的列表
-            List<String> results = new ArrayList<>();
-            while (!topResults.isEmpty()) {
-                ScoredEntry entry = topResults.poll();
-                results.add(entry.getContent());
-            }
-            // 反转列表，使分数高的在前
-            Collections.reverse(results);
-
-            for (int i = 0; i < results.size(); i++) {
-                String result = results.get(i);
-            }
-
+            List<ScoredEntry> list = topResults.stream().sorted((p1,p2)->Double.compare(p2.getScore(),p1.getScore())).toList();
             if (listener != null) {
-                listener.onComplete(results, processedFiles.get(), validContents.get());
+                listener.onComplete(list, processedFiles.get(), validContents.get());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -199,6 +218,7 @@ public class LightweightMindService implements MindService {
                     try {
                         return Files.size(file) < MAX_FILE_SIZE;
                     } catch (IOException e) {
+                        e.printStackTrace();
                         return false;
                     }
                 }).findFirst();
@@ -236,6 +256,7 @@ public class LightweightMindService implements MindService {
                     }
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 // JSON解析失败，尝试作为文本处理
             }
 
@@ -257,44 +278,10 @@ public class LightweightMindService implements MindService {
                 return trimmedLine;
             }
         } catch (Exception e) {
+            e.printStackTrace();
             // 提取失败，忽略此行
         }
         return null;
-    }
-
-    /**
-     * 基于文件的去重检查（支持多格式）
-     */
-    private boolean isDuplicate(String content) {
-        try {
-            if (Files.exists(STORAGE_DIR) && Files.isDirectory(STORAGE_DIR)) {
-                // 直接使用Files.walk流式处理，不收集到列表
-                try (Stream<Path> walk = Files.walk(STORAGE_DIR, 10)) { // 递归深度10
-                    // 并行去重检查
-                    return walk.filter(path -> {
-                        String name = path.getFileName().toString();
-                        return (name.endsWith(".txt") || name.endsWith(".json")) &&
-                                Files.isRegularFile(path);
-                    }).parallel().anyMatch(file -> {
-                        try (Stream<String> lines = Files.lines(file)) {
-                            return lines.anyMatch(line -> {
-                                if (line != null && !line.trim().isEmpty()) {
-                                    String extractedContent = extractContent(line, file);
-                                    return extractedContent != null && extractedContent.equals(content);
-                                }
-                                return false;
-                            });
-                        } catch (IOException e) {
-                            return false;
-                        }
-                    });
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
     }
 
     /**
@@ -312,25 +299,4 @@ public class LightweightMindService implements MindService {
         }
     }
 
-
-    /**
-     * 带分数的条目
-     */
-    private static class ScoredEntry {
-        private final String content;
-        private final double score;
-
-        ScoredEntry(String content, double score) {
-            this.content = content;
-            this.score = score;
-        }
-
-        public String getContent() {
-            return content;
-        }
-
-        public double getScore() {
-            return score;
-        }
-    }
 }

@@ -1,10 +1,8 @@
-package tangzeqi.com.tools.mind;
+package tangzeqi.com.tools.mind.server;
 
 import java.util.List;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-
-import tangzeqi.com.tools.mind.MindProgressListener;
 
 /**
  * 记忆库进度监听器实现，负责UI进度更新
@@ -35,17 +33,32 @@ public class MindProgressUIListener implements MindProgressListener {
     }
 
     @Override
-    public void onComplete(List<String> results,int fileCount, int memoryCount) {
+    public void onComplete(List<ScoredEntry> results,int fileCount, int memoryCount) {
         StringBuilder sb = new StringBuilder();
         sb.append("🔍 开始查找: 【").append(currentQuery).append("】相关信息\n");
         sb.append("✅ 查找结束: \n");
         sb.append("📁 共查找了 "+fileCount+" 个持久化文件\n");
         sb.append("💭 搜索了 "+memoryCount+" 条记忆\n\n");
+        String[] top = new String[]{"🥇","🥈", "🥉","🔸" };
         for (int i = 0; i < results.size(); i++) {
-            String content = results.get(i);
-            sb.append( content + "\n");
+            ScoredEntry entry = results.get(i);
+            sb.append( top[i>3?3:i]+entry.getContent() + "\n【匹配度："+entry.getScore()+"】\n");
         }
 
+        updateUI(sb.toString());
+    }
+    @Override
+    public void onSave(int fileCount, int memoryCount,boolean save) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("🔍 开始查找: 【").append(currentQuery).append("】相关信息\n");
+        sb.append("✅ 查找结束: \n");
+        sb.append("📁 共查找了 "+fileCount+" 个持久化文件\n");
+        sb.append("💭 搜索了 "+memoryCount+" 条记忆\n\n");
+        if(save){
+            sb.append("📝 未找到重复记忆，保存成功\n");
+        } else {
+            sb.append("🗑️ 存在重复记忆，已忽略\n");
+        }
         updateUI(sb.toString());
     }
 

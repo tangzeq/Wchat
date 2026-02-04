@@ -1,9 +1,5 @@
 package tangzeqi.com.utils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 public class StringUtils {
 
     /**
@@ -43,10 +39,10 @@ public class StringUtils {
         // 5. 词汇匹配：检查查询中的完整单词是否在内容中出现
         String[] queryWords = lowerQuery.split("\\s+");
         String[] contentWords = lowerContent.split("\\s+");
-        
+
         int queryWordCount = queryWords.length;
         int contentWordCount = contentWords.length;
-        
+
         // 计算查询单词在内容中的匹配数量
         int matchedQueryWords = 0;
         for (String word : queryWords) {
@@ -54,7 +50,7 @@ public class StringUtils {
                 matchedQueryWords++;
             }
         }
-        
+
         // 计算内容单词在查询中的匹配数量
         int matchedContentWords = 0;
         for (String word : contentWords) {
@@ -62,13 +58,13 @@ public class StringUtils {
                 matchedContentWords++;
             }
         }
-        
+
         // 计算词汇匹配分数
         if (queryWordCount > 0) {
             double queryWordMatchRatio = (double) matchedQueryWords / queryWordCount;
             score += 0.2 * queryWordMatchRatio;
         }
-        
+
         if (contentWordCount > 0) {
             double contentWordMatchRatio = (double) matchedContentWords / contentWordCount;
             score += 0.1 * contentWordMatchRatio;
@@ -99,7 +95,7 @@ public class StringUtils {
         // 8. 结果归一化：确保最终得分不超过1.0
         return Math.min(score, 1.0);
     }
-    
+
     /**
      * 检查部分匹配：如果word的大部分字符在target中出现，则认为是部分匹配
      */
@@ -107,18 +103,18 @@ public class StringUtils {
         if (word.length() <= 1) {
             return false;
         }
-        
+
         int matchingChars = 0;
         for (char c : word.toCharArray()) {
             if (target.indexOf(c) != -1) {
                 matchingChars++;
             }
         }
-        
+
         // 如果匹配字符数超过单词长度的60%，则认为是部分匹配
         return (double) matchingChars / word.length() > 0.6;
     }
-    
+
     /**
      * 计算两个字符串的最长公共子序列长度
      */
@@ -126,7 +122,7 @@ public class StringUtils {
         int m = s1.length();
         int n = s2.length();
         int[][] dp = new int[m + 1][n + 1];
-        
+
         for (int i = 1; i <= m; i++) {
             for (int j = 1; j <= n; j++) {
                 if (s1.charAt(i - 1) == s2.charAt(j - 1)) {
@@ -136,7 +132,7 @@ public class StringUtils {
                 }
             }
         }
-        
+
         return dp[m][n];
     }
 
