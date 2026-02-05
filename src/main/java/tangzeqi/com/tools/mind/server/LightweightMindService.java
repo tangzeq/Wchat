@@ -45,6 +45,7 @@ public class LightweightMindService implements MindService {
             if (listener != null) {
                 listener.onComplete(Collections.emptyList(), 0, 0);
             }
+            return;
         }
 
         String trimmedMind = mind.trim();
@@ -60,29 +61,43 @@ public class LightweightMindService implements MindService {
             AtomicInteger fileCount = new AtomicInteger(0);
             AtomicInteger lineCount = new AtomicInteger(0);
             AtomicBoolean unSet = new AtomicBoolean(false);
-            if (listener != null) {
-                if (Files.exists(STORAGE_DIR) && Files.isDirectory(STORAGE_DIR)) {
-                    // 直接使用Files.walk流式处理，不收集到列表
-                    try (Stream<Path> walk = Files.walk(STORAGE_DIR, 10)) { // 递归深度10
-                        // 并行去重检查
-                        walk.parallel().forEach(file -> {
-                            try (Stream<String> lines = Files.lines(file)) {
-                                lines.parallel().forEach(line -> {
-                                    int currentFile = fileCount.incrementAndGet();
-                                    int currentLine = lineCount.incrementAndGet();
-                                    if (listener != null) {
-                                        listener.onSearchProgress(currentFile, currentLine);
+            if (Files.exists(STORAGE_DIR) && Files.isDirectory(STORAGE_DIR)) {
+                // 使用Files.find代替Files.walk，减少递归开销
+                try (Stream<Path> find = Files.find(STORAGE_DIR, 10, (path, attr) -> {
+                    if (!attr.isRegularFile()) return false;
+                    String name = path.getFileName().toString();
+                    return name.endsWith(".txt") || name.endsWith(".json");
+                })) {
+                    find.parallel().anyMatch(file -> {
+                        if (unSet.get()) {
+                            return true;
+                        }
+                        try (Stream<String> lines = Files.lines(file)) {
+                            lines.anyMatch(line -> {
+                                // 已找到重复，跳过后续处理
+                                if (unSet.get()) {
+                                    return true;
+                                }
+                                int currentLine = lineCount.incrementAndGet();
+                                if (listener != null) {
+                                    listener.onSearchProgress(fileCount.get(), currentLine);
+                                }
+                                if (line != null && !line.trim().isEmpty()) {
+                                    String extractedContent = extractContent(line, file);
+                                    if (extractedContent != null && extractedContent.equals(trimmedMind)) {
+                                        unSet.set(true);
+                                        return true;
                                     }
-                                    if (line != null && !line.trim().isEmpty()) {
-                                        String extractedContent = extractContent(line, file);
-                                        unSet.set(extractedContent != null && extractedContent.equals(trimmedMind));
-                                    }
-                                });
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    }
+                                }
+                               return false;
+                            });
+                        } catch (IOException e) {
+                            // 处理失败，继续处理其他文件
+                        }
+                        // 每处理完一个文件更新文件计数
+                        fileCount.incrementAndGet();
+                        return unSet.get();
+                    });
                 }
             }
             if(!unSet.get()) {
@@ -94,7 +109,9 @@ public class LightweightMindService implements MindService {
                         StandardOpenOption.CREATE,
                         StandardOpenOption.APPEND);
             }
-            listener.onSave(fileCount.get(), lineCount.get(),!unSet.get());
+            if (listener != null) {
+                listener.onSave(fileCount.get(), lineCount.get(),!unSet.get());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -117,8 +134,9 @@ public class LightweightMindService implements MindService {
                 listener.onStart(mind);
             }
 
-            // 并行流式处理，只维护Top-10结果
-            PriorityQueue<ScoredEntry> topResults = new PriorityQueue<>(TOP_K,
+            // 顺序流式处理，只维护Top-10结果
+            // 使用PriorityQueue实现自动排序，Set实现去重
+            PriorityQueue<ScoredEntry> topResults = new PriorityQueue<>(TOP_K, 
                     Comparator.comparingDouble(ScoredEntry::getScore));
 
             // 用于去重的内容集合，只存储Top-K结果的内容
@@ -132,47 +150,57 @@ public class LightweightMindService implements MindService {
             // 初始化完成，开始查找
             try {
                 if (Files.exists(STORAGE_DIR) && Files.isDirectory(STORAGE_DIR)) {
-                    // 单次遍历：直接并行处理文件内容，不计算总文件数
-                    try (Stream<Path> walk = Files.walk(STORAGE_DIR, 10)) { // 递归深度10
-                        // 直接并行处理，不收集到列表，只处理.txt和.json文件
-                        walk.parallel().forEach(file -> {
+                    // 使用Files.find代替Files.walk，减少递归开销
+                    try (Stream<Path> find = Files.find(STORAGE_DIR, 10, (path, attr) -> {
+                        if (!attr.isRegularFile()) return false;
+                        String name = path.getFileName().toString();
+                        return name.endsWith(".txt") || name.endsWith(".json");
+                    })) {
+                        // 并行处理文件，提高性能
+                        find.parallel().forEach(file -> {
                             try (Stream<String> lines = Files.lines(file)) {
-                                // 直接处理流，不设置行处理上限
+                                // 行级别并行处理，提高性能
                                 lines.parallel().forEach(line -> {
-                                    processedLines.incrementAndGet();
-                                    // 直接更新进度，时间间隔由监听器实现控制
-                                    // 由于不知道总文件数，只显示已处理的文件数
-                                    if (listener != null) {
-                                        listener.onSearchProgress(processedFiles.get(), processedLines.get());
+                                    // 快速检查行是否为空
+                                    if (line == null || line.trim().isEmpty()) {
+                                        return;
                                     }
-                                    if (line != null && !line.trim().isEmpty()) {
-                                        String content = extractContent(line, file);
-                                        if (content != null) {
-                                            validContents.incrementAndGet();
-                                            double score = StringUtils.calculateSimilarity(mind, content);
-                                            if (score > 0) {
-                                                // 检查内容是否已存在于结果中
-                                                synchronized (contentSet) {
-                                                    if (!contentSet.contains(content)) {
-                                                        addToTopResults(topResults, contentSet, new ScoredEntry(content, score));
-                                                    }
+                                    
+                                    int currentLine = processedLines.incrementAndGet();
+                                    if (listener != null ) {
+                                        listener.onSearchProgress(processedFiles.get(), currentLine);
+                                    }
+                                    // 提取内容
+                                    String content = extractContent(line, file);
+                                    if (content == null || content.trim().isEmpty()) {
+                                        return;
+                                    }
+                                    // 直接使用StringUtils计算相似度，让其内部处理所有文本预处理和语义分析
+                                    double score = StringUtils.calculateSimilarity(mind, content);
+                                    if (score > 0) {
+                                        validContents.incrementAndGet();
+                                        // 线程安全地更新结果
+                                        synchronized (topResults) {
+                                            if (!contentSet.contains(content)) {
+                                                if (topResults.size() < TOP_K) {
+                                                    // 结果集未满，直接添加
+                                                    topResults.offer(new ScoredEntry(content, score));
+                                                    contentSet.add(content);
+                                                } else if (score > topResults.peek().getScore()) {
+                                                    // 结果集已满，但新条目分数更高，替换最低分条目
+                                                    ScoredEntry removedEntry = topResults.poll();
+                                                    contentSet.remove(removedEntry.getContent());
+                                                    topResults.offer(new ScoredEntry(content, score));
+                                                    contentSet.add(content);
                                                 }
                                             }
                                         }
                                     }
                                 });
-
                                 // 每处理完一个文件就更新一次进度
                                 int currentFileCount = processedFiles.incrementAndGet();
-                                if (listener != null) {
-                                    listener.onSearchProgress(currentFileCount, processedLines.get());
-                                }
                             } catch (IOException e) {
-                                e.printStackTrace();
                                 // 处理失败，不增加文件计数，避免错误统计
-                                if (listener != null) {
-                                    listener.onSearchProgress(processedFiles.get(), processedLines.get());
-                                }
                             }
                         });
                     }
@@ -183,7 +211,6 @@ public class LightweightMindService implements MindService {
                     return;
                 }
             } catch (IOException e) {
-                e.printStackTrace();
                 if (listener != null) {
                     listener.onComplete(new ArrayList<>(), 0, 0);
                 }
@@ -196,7 +223,6 @@ public class LightweightMindService implements MindService {
                 listener.onComplete(list, processedFiles.get(), validContents.get());
             }
         } catch (Exception e) {
-            e.printStackTrace();
             if (listener != null) {
                 listener.onComplete(new ArrayList<>(), 0, 0);
             }
@@ -240,63 +266,58 @@ public class LightweightMindService implements MindService {
      * 提取文件内容（支持多格式）
      */
     private String extractContent(String line, Path file) {
+        // 快速检查空行
+        if (line == null) {
+            return null;
+        }
+        
+        // 尝试直接作为内容处理（最常见的情况）
+        String trimmedLine = line.trim();
+        if (trimmedLine.isEmpty()) {
+            return null;
+        }
+        
         try {
-            // 尝试作为JSON处理
+            // 尝试作为JSON处理（仅在必要时）
             try {
-                Map<?, ?> jsonMap = objectMapper.readValue(line, Map.class);
-                // 尝试多个可能的字段名
-                String[] contentFields = {"content", "text", "message", "data", "value", "contentText"};
-                for (String field : contentFields) {
-                    if (jsonMap.containsKey(field)) {
-                        Object contentObj = jsonMap.get(field);
-                        String content = contentObj != null ? contentObj.toString().trim() : null;
-                        if (content != null && !content.isEmpty()) {
-                            return content;
+                // 快速检查是否可能是JSON（以{开头）
+                if (trimmedLine.startsWith("{")) {
+                    Map<?, ?> jsonMap = objectMapper.readValue(trimmedLine, Map.class);
+                    // 尝试多个可能的字段名
+                    String[] contentFields = {"content", "text", "message", "data", "value", "contentText"};
+                    for (String field : contentFields) {
+                        if (jsonMap.containsKey(field)) {
+                            Object contentObj = jsonMap.get(field);
+                            if (contentObj != null) {
+                                String content = contentObj.toString().trim();
+                                if (!content.isEmpty()) {
+                                    return content;
+                                }
+                            }
                         }
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                // JSON解析失败，尝试作为文本处理
+                // JSON解析失败，继续尝试其他格式
             }
 
             // 尝试作为文本处理（多种分隔符）
             String[] separators = {"|", ",", ";", "\t", "="};
             for (String separator : separators) {
-                String[] parts = line.split(separator, 2);
-                if (parts.length == 2) {
-                    String content = parts[1].trim();
+                int separatorIndex = trimmedLine.indexOf(separator);
+                if (separatorIndex != -1 && separatorIndex < trimmedLine.length() - 1) {
+                    String content = trimmedLine.substring(separatorIndex + 1).trim();
                     if (!content.isEmpty()) {
                         return content;
                     }
                 }
             }
-
-            // 尝试直接作为内容处理
-            String trimmedLine = line.trim();
-            if (!trimmedLine.isEmpty()) {
-                return trimmedLine;
-            }
         } catch (Exception e) {
-            e.printStackTrace();
             // 提取失败，忽略此行
         }
-        return null;
-    }
-
-    /**
-     * 添加到Top-K结果
-     */
-    private void addToTopResults(PriorityQueue<ScoredEntry> topResults, Set<String> contentSet, ScoredEntry entry) {
-        if (topResults.size() < TOP_K) {
-            topResults.offer(entry);
-            contentSet.add(entry.getContent());
-        } else if (entry.getScore() > topResults.peek().getScore()) {
-            ScoredEntry removedEntry = topResults.poll();
-            contentSet.remove(removedEntry.getContent());
-            topResults.offer(entry);
-            contentSet.add(entry.getContent());
-        }
+        
+        // 直接返回处理后的内容
+        return trimmedLine;
     }
 
 }

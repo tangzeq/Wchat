@@ -1,139 +1,318 @@
 package tangzeqi.com.utils;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 public class StringUtils {
 
+    // 停用词列表
+    private static final Set<String> STOP_WORDS = new HashSet<>(Arrays.asList(
+            "的", "了", "是", "在", "我", "有", "和", "就", "不", "人", "都", "一", "一个", "上", "也", "很", "到", "说", "要", "去", "你", "会", "着", "没有", "看", "好", "自己", "这",
+            "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "with", "by", "of", "from", "as", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "do", "does", "did"
+    ));
+
+    // 句子成分权重映射
+    private static final Map<String, Double> SENTENCE_COMPONENT_WEIGHTS = new HashMap<>();
+    static {
+        SENTENCE_COMPONENT_WEIGHTS.put("object", 1.0);      // 宾语
+        SENTENCE_COMPONENT_WEIGHTS.put("subject", 0.9);    // 主语
+        SENTENCE_COMPONENT_WEIGHTS.put("attribute", 0.8);  // 定语
+        SENTENCE_COMPONENT_WEIGHTS.put("predicate", 0.7);  // 谓语
+        SENTENCE_COMPONENT_WEIGHTS.put("adverbial", 0.6);   // 状语
+        SENTENCE_COMPONENT_WEIGHTS.put("complement", 0.5); // 补语
+    }
+
     /**
-     * 计算相似度 - 多维度评分，提高准确度
+     * 缓存query的关键词提取结果
      */
-    public static double calculateSimilarity(String query, String content) {
-        double score = 0.0;
-        String lowerQuery = query.toLowerCase();
-        String lowerContent = content.toLowerCase();
+    private static final Cache<String, List<Keyword>> QUERY_KEYWORDS_CACHE = Caffeine.newBuilder()
+            .expireAfterAccess(100, TimeUnit.MILLISECONDS)
+            .maximumSize(1)
+            .build();
 
-        // 1. 完全匹配检查：如果内容与查询完全相同，直接返回1.0
-        if (lowerContent.equals(lowerQuery)) {
-            return 1.0;
+    /**
+     * 关键词类
+     */
+    private static class Keyword {
+        String word;
+        double weight;
+        String sentenceComponent; // 句子成分
+
+        Keyword(String word, double weight, String sentenceComponent) {
+            this.word = word;
+            this.weight = weight;
+            this.sentenceComponent = sentenceComponent;
+        }
+    }
+
+    /**
+     * 从候选内容中找到最匹配query的内容
+     * @param query 查询语句
+     * @param contents 候选内容列表
+     * @return 最匹配的内容，如果没有匹配则返回null
+     */
+    public static double calculateSimilarity(String query, String contents) {
+        if (query == null || query.trim().isEmpty() || contents == null || contents.trim().isEmpty()) {
+            return 0;
         }
 
-        // 2. 文本包含检查：如果内容包含查询文本，加0.2分
-        if (lowerContent.contains(lowerQuery)) {
-            score += 0.2;
+        // 提取query的关键词
+        List<Keyword> queryKeywords = QUERY_KEYWORDS_CACHE.get(query, k -> extractKeywords(k));
+
+        if (queryKeywords.isEmpty()) {
+            return 0;
         }
 
-        // 3. 双向包含检查：如果查询包含内容文本，加0.2分（解决部分匹配问题）
-        if (lowerQuery.contains(lowerContent)) {
-            score += 0.2;
+        return calculateMatchScore(queryKeywords, contents);
+    }
+
+    /**
+     * 从文本中提取关键词
+     */
+    private static List<Keyword> extractKeywords(String text) {
+        List<Keyword> keywords = new ArrayList<>();
+
+        if (text == null || text.trim().isEmpty()) {
+            return keywords;
         }
 
-        // 4. 字符级相似度：计算查询中的每个字符是否在内容中出现
-        // 这是最重要的部分，确保即使字符在内容中是分散的，也能获得较高的分数
-        int matchingChars = 0;
-        for (char c : lowerQuery.toCharArray()) {
-            if (lowerContent.indexOf(c) != -1) {
-                matchingChars++;
+        // 判断文本语言类型
+        boolean isChinese = containsChineseCharacters(text);
+
+        // 根据语言类型进行分词和句子成分分析
+        if (isChinese) {
+            return extractChineseKeywords(text);
+        } else {
+            return extractEnglishKeywords(text);
+        }
+    }
+
+    /**
+     * 提取中文关键词
+     */
+    private static List<Keyword> extractChineseKeywords(String text) {
+        List<Keyword> keywords = new ArrayList<>();
+
+        // 简单的中文分词：按字符分词
+        List<String> chars = new ArrayList<>();
+        for (char c : text.toCharArray()) {
+            if (!Character.isWhitespace(c)) {
+                chars.add(String.valueOf(c));
             }
         }
-        double charMatchRatio = (double) matchingChars / lowerQuery.length();
-        score += 0.5 * charMatchRatio;
 
-        // 5. 词汇匹配：检查查询中的完整单词是否在内容中出现
-        String[] queryWords = lowerQuery.split("\\s+");
-        String[] contentWords = lowerContent.split("\\s+");
+        // 识别句子成分
+        for (int i = 0; i < chars.size(); i++) {
+            String current = chars.get(i);
 
-        int queryWordCount = queryWords.length;
-        int contentWordCount = contentWords.length;
-
-        // 计算查询单词在内容中的匹配数量
-        int matchedQueryWords = 0;
-        for (String word : queryWords) {
-            if (lowerContent.contains(word)) {
-                matchedQueryWords++;
+            // 跳过停用词
+            if (STOP_WORDS.contains(current)) {
+                continue;
             }
+
+            // 判断句子成分
+            String sentenceComponent = determineChineseSentenceComponent(chars, i);
+
+            // 获取权重
+            double weight = SENTENCE_COMPONENT_WEIGHTS.getOrDefault(sentenceComponent, 0.5);
+
+            keywords.add(new Keyword(current, weight, sentenceComponent));
         }
 
-        // 计算内容单词在查询中的匹配数量
-        int matchedContentWords = 0;
-        for (String word : contentWords) {
-            if (lowerQuery.contains(word)) {
-                matchedContentWords++;
+        return keywords;
+    }
+
+    /**
+     * 确定中文句子成分
+     */
+    private static String determineChineseSentenceComponent(List<String> chars, int index) {
+        if (index < 0 || index >= chars.size()) {
+            return "unknown";
+        }
+
+        String current = chars.get(index);
+
+        // 检查是否是"的"字短语（定语）
+        if (index < chars.size() - 1 && chars.get(index + 1).equals("的")) {
+            return "attribute";
+        }
+
+        // 检查是否是"地"字短语（状语）
+        if (index < chars.size() - 1 && chars.get(index + 1).equals("地")) {
+            return "adverbial";
+        }
+
+        // 检查是否是"得"字短语（补语）
+        if (index > 0 && chars.get(index - 1).equals("得")) {
+            return "complement";
+        }
+
+        // 检查是否是"的"字前面的词（可能是主语或宾语）
+        if (current.equals("的")) {
+            // "的"字前面的词可能是定语，但"的"字本身不是关键词
+            return "unknown";
+        }
+
+        // 检查是否是动词（谓语）
+        if (isChineseVerb(current)) {
+            return "predicate";
+        }
+
+        // 默认为名词（可能是主语或宾语）
+        return "noun";
+    }
+
+    /**
+     * 检查是否是中文动词
+     */
+    private static boolean isChineseVerb(String word) {
+        // 简化的动词判断逻辑
+        // 实际项目中可以使用更复杂的NLP库
+        return word.endsWith("了") || word.endsWith("着") || word.endsWith("过") ||
+                word.endsWith("起来") || word.endsWith("下去") || word.endsWith("上来") ||
+                word.endsWith("下来") || word.endsWith("进去") || word.endsWith("出来");
+    }
+
+    /**
+     * 提取英文关键词
+     */
+    private static List<Keyword> extractEnglishKeywords(String text) {
+        List<Keyword> keywords = new ArrayList<>();
+
+        // 英文按空格和标点分词
+        List<String> words = Arrays.asList(text.toLowerCase().split("[\\s\\p{Punct}]+"));
+
+        // 识别句子成分
+        for (int i = 0; i < words.size(); i++) {
+            String current = words.get(i);
+
+            // 跳过停用词
+            if (STOP_WORDS.contains(current)) {
+                continue;
             }
+
+            // 判断句子成分
+            String sentenceComponent = determineEnglishSentenceComponent(words, i);
+
+            // 获取权重
+            double weight = SENTENCE_COMPONENT_WEIGHTS.getOrDefault(sentenceComponent, 0.5);
+
+            keywords.add(new Keyword(current, weight, sentenceComponent));
         }
 
-        // 计算词汇匹配分数
-        if (queryWordCount > 0) {
-            double queryWordMatchRatio = (double) matchedQueryWords / queryWordCount;
-            score += 0.2 * queryWordMatchRatio;
+        return keywords;
+    }
+
+    /**
+     * 确定英文句子成分
+     */
+    private static String determineEnglishSentenceComponent(List<String> words, int index) {
+        if (index < 0 || index >= words.size()) {
+            return "unknown";
         }
 
-        if (contentWordCount > 0) {
-            double contentWordMatchRatio = (double) matchedContentWords / contentWordCount;
-            score += 0.1 * contentWordMatchRatio;
+        String current = words.get(index);
+
+        // 检查是否是动词（谓语）
+        if (isEnglishVerb(current)) {
+            return "predicate";
         }
 
-        // 6. 核心词汇匹配：检查查询中的核心词汇是否在内容中出现
-        boolean hasCoreMatch = false;
-        for (String queryWord : queryWords) {
-            for (String contentWord : contentWords) {
-                if (hasPartialMatch(queryWord, contentWord) || hasPartialMatch(contentWord, queryWord)) {
-                    hasCoreMatch = true;
-                    break;
-                }
-            }
-            if (hasCoreMatch) {
-                break;
-            }
-        }
-        if (hasCoreMatch) {
-            score += 0.1 * charMatchRatio;
+        // 检查是否是形容词（定语）
+        if (isEnglishAdjective(current)) {
+            return "attribute";
         }
 
-        // 7. 阈值过滤：如果总分低于0.1，视为不相关，返回0.0
-        if (score < 0.1) {
+        // 检查是否是副词（状语）
+        if (isEnglishAdverb(current)) {
+            return "adverbial";
+        }
+
+        // 默认为名词（可能是主语或宾语）
+        return "noun";
+    }
+
+    /**
+     * 检查是否是英文动词
+     */
+    private static boolean isEnglishVerb(String word) {
+        // 简化的动词判断逻辑
+        return word.endsWith("ing") || word.endsWith("ed") || word.endsWith("s") ||
+                word.endsWith("ize") || word.endsWith("ate") || word.endsWith("ify");
+    }
+
+    /**
+     * 检查是否是英文形容词
+     */
+    private static boolean isEnglishAdjective(String word) {
+        // 简化的形容词判断逻辑
+        return word.endsWith("ful") || word.endsWith("ous") || word.endsWith("ive") ||
+                word.endsWith("able") || word.endsWith("ible") || word.endsWith("al");
+    }
+
+    /**
+     * 检查是否是英文副词
+     */
+    private static boolean isEnglishAdverb(String word) {
+        // 简化的副词判断逻辑
+        return word.endsWith("ly") || word.endsWith("wise") || word.endsWith("wards");
+    }
+
+    /**
+     * 计算内容与关键词的匹配得分
+     */
+    private static double calculateMatchScore(List<Keyword> keywords, String content) {
+        if (keywords.isEmpty()) {
             return 0.0;
         }
 
-        // 8. 结果归一化：确保最终得分不超过1.0
-        return Math.min(score, 1.0);
-    }
+        double totalScore = 0.0;
+        double totalWeight = 0.0;
 
-    /**
-     * 检查部分匹配：如果word的大部分字符在target中出现，则认为是部分匹配
-     */
-    private static boolean hasPartialMatch(String word, String target) {
-        if (word.length() <= 1) {
-            return false;
-        }
+        for (Keyword keyword : keywords) {
+            double weight = keyword.weight;
+            totalWeight += weight;
 
-        int matchingChars = 0;
-        for (char c : word.toCharArray()) {
-            if (target.indexOf(c) != -1) {
-                matchingChars++;
+            // 精确匹配
+            if (content.contains(keyword.word)) {
+                totalScore += weight * 1.0;
             }
         }
 
-        // 如果匹配字符数超过单词长度的60%，则认为是部分匹配
-        return (double) matchingChars / word.length() > 0.6;
+        return totalWeight > 0 ? totalScore / totalWeight : 0.0;
     }
 
     /**
-     * 计算两个字符串的最长公共子序列长度
+     * 分词处理
      */
-    private static int longestCommonSubsequence(String s1, String s2) {
-        int m = s1.length();
-        int n = s2.length();
-        int[][] dp = new int[m + 1][n + 1];
+    private static List<String> tokenizeText(String text) {
+        List<String> tokens = new ArrayList<>();
+        boolean containsChinese = containsChineseCharacters(text);
 
-        for (int i = 1; i <= m; i++) {
-            for (int j = 1; j <= n; j++) {
-                if (s1.charAt(i - 1) == s2.charAt(j - 1)) {
-                    dp[i][j] = dp[i - 1][j - 1] + 1;
-                } else {
-                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+        if (containsChinese) {
+            // 中文按字符分词
+            for (char c : text.toCharArray()) {
+                if (!Character.isWhitespace(c)) {
+                    tokens.add(String.valueOf(c));
                 }
             }
+        } else {
+            // 英文按空格和标点分词
+            tokens = Arrays.asList(text.toLowerCase().split("[\\s\\p{Punct}]+"));
         }
 
-        return dp[m][n];
+        return tokens;
     }
 
+    /**
+     * 检查是否包含中文字符
+     */
+    private static boolean containsChineseCharacters(String text) {
+        return text.chars().anyMatch(c ->
+                Character.UnicodeBlock.of((char) c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+        );
+    }
 }

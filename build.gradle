@@ -88,4 +88,28 @@ task storeKnowledgeBase(type: JavaExec) {
   workingDir = projectDir
 }
 
+// ===================== 自定义任务：测试相似度算法 =====================
+task testSimilarityAlgorithm(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+  mainClass = 'tangzeqi.com.utils.StringUtilsTest'
+  workingDir = projectDir
+  description = '测试相似度计算算法，生成详细的测试报告和性能分析'
+}
+
+// ===================== 自定义任务：并发测试相似度算法 =====================
+task testConcurrentSimilarityAlgorithm(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+  mainClass = 'tangzeqi.com.utils.StringUtilsConcurrentTest'
+  workingDir = projectDir
+  description = '并发测试相似度计算算法，验证线程安全性和性能'
+}
+
+// ===================== 自定义任务：测试MindService get方法 =====================
+task testMindServiceGet(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+  mainClass = 'tangzeqi.com.tools.mind.MindServiceTest'
+  workingDir = projectDir
+  description = '测试MindService get方法，分析语义分析结果、耗时、内存使用率变化和优化方案'
+}
+
 
