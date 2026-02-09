@@ -146,6 +146,7 @@ public class LightweightMindService implements MindService {
             AtomicInteger processedFiles = new AtomicInteger(0);
             AtomicInteger processedLines = new AtomicInteger(0);
             AtomicInteger validContents = new AtomicInteger(0);
+            AtomicInteger finded = new AtomicInteger(3);
 
             // 初始化完成，开始查找
             try {
@@ -157,13 +158,15 @@ public class LightweightMindService implements MindService {
                         return name.endsWith(".txt") || name.endsWith(".json");
                     })) {
                         // 并行处理文件，提高性能
-                        find.parallel().forEach(file -> {
+                        find.parallel().anyMatch(file -> {
+                            if(finded.get()<=0) return true;
                             try (Stream<String> lines = Files.lines(file)) {
                                 // 行级别并行处理，提高性能
-                                lines.parallel().forEach(line -> {
+                                lines.parallel().anyMatch(line -> {
+                                    if(finded.get()<=0) return true;
                                     // 快速检查行是否为空
                                     if (line == null || line.trim().isEmpty()) {
-                                        return;
+                                        return false;
                                     }
                                     
                                     int currentLine = processedLines.incrementAndGet();
@@ -173,7 +176,7 @@ public class LightweightMindService implements MindService {
                                     // 提取内容
                                     String content = extractContent(line, file);
                                     if (content == null || content.trim().isEmpty()) {
-                                        return;
+                                        return false;
                                     }
                                     // 直接使用StringUtils计算相似度，让其内部处理所有文本预处理和语义分析
                                     double score = StringUtils.calculateSimilarity(mind, content);
@@ -194,14 +197,17 @@ public class LightweightMindService implements MindService {
                                                     contentSet.add(content);
                                                 }
                                             }
+                                            if(score >= 1) finded.set(finded.get()-1);
                                         }
                                     }
+                                    return false;
                                 });
                                 // 每处理完一个文件就更新一次进度
                                 int currentFileCount = processedFiles.incrementAndGet();
                             } catch (IOException e) {
                                 // 处理失败，不增加文件计数，避免错误统计
                             }
+                            return false;
                         });
                     }
                 } else {
