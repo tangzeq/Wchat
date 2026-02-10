@@ -1,4 +1,4 @@
-package tangzeqi.com.ui;
+package tangzeqi.com.tools.chat.enums;
 
 public enum UiConstantEnum {
     SYS("系统提示"),

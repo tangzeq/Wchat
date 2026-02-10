@@ -20,7 +20,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static tangzeqi.com.ui.UiConstantEnum.SYS;
+import static tangzeqi.com.tools.chat.enums.UiConstantEnum.SYS;
 
 @Slf4j
 public class ChatService {

@@ -1,9 +1,7 @@
 package tangzeqi.com.utils;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class StringUtils {
@@ -28,10 +26,7 @@ public class StringUtils {
     /**
      * 缓存query的关键词提取结果
      */
-    private static final Cache<String, List<Keyword>> QUERY_KEYWORDS_CACHE = Caffeine.newBuilder()
-            .expireAfterAccess(100, TimeUnit.MILLISECONDS)
-            .maximumSize(1)
-            .build();
+    private static final Map<String, List<Keyword>> QUERY_KEYWORDS_CACHE = new ConcurrentHashMap<>();
 
     /**
      * 关键词类
@@ -60,7 +55,7 @@ public class StringUtils {
         }
 
         // 提取query的关键词
-        List<Keyword> queryKeywords = QUERY_KEYWORDS_CACHE.get(query, k -> extractKeywords(k));
+        List<Keyword> queryKeywords = QUERY_KEYWORDS_CACHE.computeIfAbsent(query, k -> extractKeywords(k));
 
         if (queryKeywords.isEmpty()) {
             return 0;

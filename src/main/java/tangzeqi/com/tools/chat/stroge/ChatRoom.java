@@ -1,4 +1,4 @@
-package tangzeqi.com.ui;
+package tangzeqi.com.tools.chat.stroge;
 
 public class ChatRoom {
 

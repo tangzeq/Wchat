@@ -1,4 +1,4 @@
-package tangzeqi.com.ui;
+package tangzeqi.com.tools.chat.handler;
 
 import tangzeqi.com.tools.chat.stroge.BaseUser;
 import tangzeqi.com.tools.chat.stroge.TextMessage;
@@ -6,7 +6,7 @@ import tangzeqi.com.tools.chat.stroge.TextMessage;
 import javax.swing.*;
 import java.awt.*;
 
-class MessageCellRenderer extends JTextArea implements ListCellRenderer<BaseUser> {
+public class MessageCellRenderer extends JTextArea implements ListCellRenderer<BaseUser> {
     public MessageCellRenderer() {
         setLineWrap(true);
         setWrapStyleWord(true);
