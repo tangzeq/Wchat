@@ -42,9 +42,6 @@ public class ChatRoomPanel extends JPanel implements Config, Chat, MyPanel {
     private JTextField ipField;
     private JTextField portField;
     private JButton createChatButton;
-    private JPanel joinChatPanel;
-    private JTextField joinIpField;
-    private JTextField joinPortField;
     private JButton joinChatButton;
     private JPanel personalInfoPanel;
     private JTextField nicknameField;
@@ -80,6 +77,7 @@ public class ChatRoomPanel extends JPanel implements Config, Chat, MyPanel {
 
     public ChatRoomPanel() {
         this.project = null;
+        $$$setupUI$$$();
     }
 
     private void initializeConfig() {
@@ -87,8 +85,6 @@ public class ChatRoomPanel extends JPanel implements Config, Chat, MyPanel {
         String port = String.valueOf(NetUtils.port());
         ipField.setText(host);
         portField.setText(port);
-        joinIpField.setText(host);
-        joinPortField.setText(port);
         // 设置聊天消息列表的渲染器和属性
         chatMessageList.setCellRenderer(new MessageCellRenderer());
         chatMessageList.setVisibleRowCount(-1); // 允许显示任意行数
@@ -152,18 +148,18 @@ public class ChatRoomPanel extends JPanel implements Config, Chat, MyPanel {
         });
 
         joinChatButton.addActionListener(e -> {
-            String ip = joinIpField.getText();
-            String port = joinPortField.getText();
+            String ip = ipField.getText();
+            String port = portField.getText();
             String nickName = nicknameField.getText();
             if (nickName.trim().isEmpty()) {
                 addChatMessage(SYS.getValue(), "昵称不能为空！");
                 nicknameField.requestFocusInWindow();
             } else if (ip.trim().isEmpty()) {
                 addChatMessage(SYS.getValue(), "IP不能为空！");
-                joinIpField.requestFocusInWindow();
+                ipField.requestFocusInWindow();
             } else if (port.trim().isEmpty()) {
                 addChatMessage(SYS.getValue(), "端口不能为空！");
-                joinPortField.requestFocusInWindow();
+                portField.requestFocusInWindow();
             } else {
                 joinChatRoom(ip, Integer.parseInt(port));
             }
@@ -177,6 +173,14 @@ public class ChatRoomPanel extends JPanel implements Config, Chat, MyPanel {
         });
 
         sendButton.addActionListener(e -> {
+            String message = messageField.getText();
+            if (!message.isEmpty()) {
+                sendMessage(message);
+                messageField.setText("");
+            }
+        });
+
+        messageField.addActionListener(e -> {
             String message = messageField.getText();
             if (!message.isEmpty()) {
                 sendMessage(message);
@@ -401,6 +405,16 @@ public class ChatRoomPanel extends JPanel implements Config, Chat, MyPanel {
 
     }
 
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+    }
+
+    @Override
+    public JComponent getComponent(String project) {
+        return new ChatRoomPanel(project).$$$getRootComponent$$$();
+    }
+
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("ChatRoomPanel");
@@ -420,89 +434,73 @@ public class ChatRoomPanel extends JPanel implements Config, Chat, MyPanel {
      */
     private void $$$setupUI$$$() {
         chatRoomPanel = new JPanel();
-        chatRoomPanel.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
-        chatRoomPanel.setMinimumSize(new Dimension(-1, -1));
-        chatRoomPanel.setPreferredSize(new Dimension(-1, -1));
+        chatRoomPanel.setLayout(new GridLayoutManager(1, 2, new Insets(10, 10, 10, 10), 10, 10));
+        chatRoomPanel.setMinimumSize(new Dimension(800, 500));
+        chatRoomPanel.setPreferredSize(new Dimension(1000, 700));
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
-        panel1.setEnabled(true);
-        chatRoomPanel.add(panel1, new GridConstraints(0, 0, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(100, -1), null, 0, false));
-        final JPanel panel2 = new JPanel();
-        panel2.setLayout(new GridLayoutManager(3, 2, new Insets(1, 1, 1, 1), -1, -1));
-        panel1.add(panel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "创建聊天室", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
-        final JLabel label1 = new JLabel();
-        label1.setText("IP：");
-        panel2.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        ipField = new JTextField();
-        ipField.setPreferredSize(new Dimension(120, 20));
-        ipField.setText("127.0.0.1");
-        panel2.add(ipField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label2 = new JLabel();
-        label2.setText("端口：");
-        panel2.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        portField = new JTextField();
-        portField.setPreferredSize(new Dimension(120, 20));
-        portField.setText("8080");
-        panel2.add(portField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        createChatButton = new JButton();
-        createChatButton.setText("创建聊天室");
-        panel2.add(createChatButton, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel3 = new JPanel();
-        panel3.setLayout(new GridLayoutManager(3, 2, new Insets(1, 1, 1, 1), -1, -1));
-        panel1.add(panel3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel3.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "加入聊天室", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
-        final JLabel label3 = new JLabel();
-        label3.setText("IP：");
-        panel3.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        joinIpField = new JTextField();
-        joinIpField.setPreferredSize(new Dimension(120, 20));
-        joinIpField.setText("127.0.0.1");
-        panel3.add(joinIpField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label4 = new JLabel();
-        label4.setText("端口：");
-        panel3.add(label4, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        joinPortField = new JTextField();
-        joinPortField.setPreferredSize(new Dimension(120, 20));
-        joinPortField.setText("8080");
-        panel3.add(joinPortField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        joinChatButton = new JButton();
-        joinChatButton.setText("加入聊天室");
-        panel3.add(joinChatButton, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel4 = new JPanel();
-        panel4.setLayout(new GridLayoutManager(1, 2, new Insets(1, 1, 1, 1), -1, -1));
-        panel1.add(panel4, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel4.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "个人信息", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
-        final JLabel label5 = new JLabel();
-        label5.setText("昵称：");
-        panel4.add(label5, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        nicknameField = new JTextField();
-        nicknameField.setPreferredSize(new Dimension(120, 20));
-        nicknameField.setText("用户");
-        panel4.add(nicknameField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel5 = new JPanel();
-        panel5.setLayout(new GridLayoutManager(2, 1, new Insets(5, 5, 5, 5), -1, -1));
-        chatRoomPanel.add(panel5, new GridConstraints(0, 1, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(600, -1), null, 0, false));
+        panel1.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), 5, 5));
+        chatRoomPanel.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         chatMessageScroll = new JScrollPane();
-        panel5.add(chatMessageScroll, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel1.add(chatMessageScroll, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         chatMessageScroll.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "聊天信息", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         chatMessageList = new JList();
         chatMessageScroll.setViewportView(chatMessageList);
-        final JPanel panel6 = new JPanel();
-        panel6.setLayout(new GridLayoutManager(1, 2, new Insets(5, 5, 5, 5), -1, -1));
-        panel5.add(panel6, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        panel6.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "发送消息", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        final JPanel panel2 = new JPanel();
+        panel2.setLayout(new GridLayoutManager(1, 2, new Insets(5, 5, 5, 5), 5, 5));
+        panel1.add(panel2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "发送消息", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         messageField = new JTextField();
-        messageField.setPreferredSize(new Dimension(400, 20));
-        panel6.add(messageField, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        messageField.setPreferredSize(new Dimension(500, 30));
+        panel2.add(messageField, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sendButton = new JButton();
+        sendButton.setPreferredSize(new Dimension(100, 30));
         sendButton.setText("发送");
-        panel6.add(sendButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel2.add(sendButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel3 = new JPanel();
+        panel3.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), 5, 10));
+        chatRoomPanel.add(panel3, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         chatRoomScroll = new JScrollPane();
-        chatRoomPanel.add(chatRoomScroll, new GridConstraints(0, 2, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(200, -1), null, 0, false));
+        panel3.add(chatRoomScroll, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         chatRoomScroll.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "聊天室列表", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         chatRoomList = new JList();
         chatRoomScroll.setViewportView(chatRoomList);
+        final JPanel panel4 = new JPanel();
+        panel4.setLayout(new GridLayoutManager(3, 2, new Insets(8, 8, 8, 8), 10, 8));
+        panel3.add(panel4, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel4.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "聊天室管理", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        final JLabel label1 = new JLabel();
+        label1.setText("IP：");
+        panel4.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        ipField = new JTextField();
+        ipField.setPreferredSize(new Dimension(150, 25));
+        ipField.setText("127.0.0.1");
+        panel4.add(ipField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label2 = new JLabel();
+        label2.setText("端口：");
+        panel4.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        portField = new JTextField();
+        portField.setPreferredSize(new Dimension(150, 25));
+        portField.setText("8080");
+        panel4.add(portField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        createChatButton = new JButton();
+        createChatButton.setPreferredSize(new Dimension(100, 30));
+        createChatButton.setText("创建聊天室");
+        panel4.add(createChatButton, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 3, false));
+        joinChatButton = new JButton();
+        joinChatButton.setPreferredSize(new Dimension(100, 30));
+        joinChatButton.setText("加入聊天室");
+        panel4.add(joinChatButton, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel5 = new JPanel();
+        panel5.setLayout(new GridLayoutManager(1, 2, new Insets(8, 8, 8, 8), 10, 5));
+        panel3.add(panel5, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel5.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "个人信息", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        final JLabel label3 = new JLabel();
+        label3.setText("昵称：");
+        panel5.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        nicknameField = new JTextField();
+        nicknameField.setPreferredSize(new Dimension(150, 25));
+        nicknameField.setText("用户");
+        panel5.add(nicknameField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -510,15 +508,6 @@ public class ChatRoomPanel extends JPanel implements Config, Chat, MyPanel {
      */
     public JComponent $$$getRootComponent$$$() {
         return chatRoomPanel;
-    }
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
-    }
-
-    @Override
-    public JComponent getComponent(String project) {
-        return new ChatRoomPanel(project).$$$getRootComponent$$$();
     }
 
 }

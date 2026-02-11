@@ -37,6 +37,7 @@ public class ToolsPanel extends JPanel implements MyPanel {
 
     public ToolsPanel() {
         this.project = null;
+        $$$setupUI$$$();
     }
 
     private void setupScrollPanes() {
@@ -181,6 +182,15 @@ public class ToolsPanel extends JPanel implements MyPanel {
         }
     }
 
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+    }
+
+    @Override
+    public JComponent getComponent(String project) {
+        return new ToolsPanel(project).$$$getRootComponent$$$();
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("ToolsPanel");
@@ -226,7 +236,6 @@ public class ToolsPanel extends JPanel implements MyPanel {
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         toolsPanel.add(panel2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "工具列表", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         jsonFormatButton = new JButton();
         jsonFormatButton.setText("JSON格式化");
         panel2.add(jsonFormatButton);
@@ -251,12 +260,4 @@ public class ToolsPanel extends JPanel implements MyPanel {
         return toolsPanel;
     }
 
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
-    }
-
-    @Override
-    public JComponent getComponent(String project) {
-        return new ToolsPanel(project).$$$getRootComponent$$$();
-    }
 }

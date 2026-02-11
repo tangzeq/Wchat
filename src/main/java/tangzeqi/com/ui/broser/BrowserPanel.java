@@ -30,6 +30,7 @@ public class BrowserPanel extends JPanel implements MyPanel {
 
     public BrowserPanel() {
         this.project = null;
+        $$$setupUI$$$();
     }
 
     // 添加浏览器初始化方法
@@ -74,6 +75,17 @@ public class BrowserPanel extends JPanel implements MyPanel {
         }
     }
 
+
+    private void createUIComponents() {
+        browserContentPanel = new JPanel(new BorderLayout());
+    }
+
+    @Override
+    public JComponent getComponent(String project) {
+        return new BrowserPanel(project).$$$getRootComponent$$$();
+    }
+
+    /****************************************标准的GUI 生成*****************************************************/
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("BrowserPanel");
@@ -92,7 +104,6 @@ public class BrowserPanel extends JPanel implements MyPanel {
      * @noinspection ALL
      */
     private void $$$setupUI$$$() {
-        createUIComponents();
         browserPanel = new JPanel();
         browserPanel.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
         browserPanel.setMinimumSize(new Dimension(-1, -1));
@@ -108,6 +119,8 @@ public class BrowserPanel extends JPanel implements MyPanel {
         goButton.setPreferredSize(new Dimension(60, 25));
         goButton.setText("访问");
         panel1.add(goButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        browserContentPanel = new JPanel();
+        browserContentPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         browserPanel.add(browserContentPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     }
 
@@ -118,12 +131,4 @@ public class BrowserPanel extends JPanel implements MyPanel {
         return browserPanel;
     }
 
-    private void createUIComponents() {
-        browserContentPanel = new JPanel(new BorderLayout());
-    }
-
-    @Override
-    public JComponent getComponent(String project) {
-        return new BrowserPanel(project).$$$getRootComponent$$$();
-    }
 }

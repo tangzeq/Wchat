@@ -38,6 +38,7 @@ public class MindPanel extends JPanel implements MyPanel {
 
     public MindPanel() {
         this.project = null;
+        $$$setupUI$$$();
     }
 
     private void initMind() {
@@ -150,6 +151,15 @@ public class MindPanel extends JPanel implements MyPanel {
         });
     }
 
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+    }
+
+    @Override
+    public JComponent getComponent(String project) {
+        return new MindPanel(project).$$$getRootComponent$$$();
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("MindPanel");
@@ -174,7 +184,6 @@ public class MindPanel extends JPanel implements MyPanel {
         mindPanel.setPreferredSize(new Dimension(-1, -1));
         mindOutputScroll = new JScrollPane();
         mindPanel.add(mindOutputScroll, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        mindOutputScroll.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "记忆", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         mindOutputArea = new JTextArea();
         mindOutputArea.setEditable(false);
         mindOutputArea.setLineWrap(true);
@@ -202,12 +211,5 @@ public class MindPanel extends JPanel implements MyPanel {
         return mindPanel;
     }
 
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
-    }
 
-    @Override
-    public JComponent getComponent(String project) {
-        return new MindPanel(project).$$$getRootComponent$$$();
-    }
 }

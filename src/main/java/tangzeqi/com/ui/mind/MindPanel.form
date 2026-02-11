@@ -15,21 +15,16 @@
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties>
-          <verticalScrollBarPolicy value="SCROLLBARS_ALWAYS"/>
-          <horizontalScrollBarPolicy value="SCROLLBARS_ALWAYS"/>
-        </properties>
-        <border type="etched" title="记忆"/>
+        <properties/>
+        <border type="none"/>
         <children>
           <component id="mindOutputArea" class="javax.swing.JTextArea" binding="mindOutputArea">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-            </constraints>
+            <constraints/>
             <properties>
               <editable value="false"/>
               <lineWrap value="true"/>
-              <wrapStyleWord value="true"/>
               <preferredSize width="800" height="300"/>
+              <wrapStyleWord value="true"/>
             </properties>
           </component>
         </children>

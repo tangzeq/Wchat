@@ -38,6 +38,7 @@ public class FolderPanel extends JPanel implements MyPanel {
 
     public FolderPanel() {
         this.project = null;
+        $$$setupUI$$$();
     }
 
     private void initialize() {
@@ -435,6 +436,24 @@ public class FolderPanel extends JPanel implements MyPanel {
         fileContentArea.setText(content.toString());
     }
 
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+    }
+
+    @Override
+    public JComponent getComponent(String project) {
+        return new FolderPanel(project).$$$getRootComponent$$$();
+    }
+
+    // FileEncodingDetector 类
+    private static class FileEncodingDetector {
+        public static String detectEncoding(File file) {
+            // 简单的编码检测，实际项目中可能需要更复杂的实现
+            return "UTF-8";
+        }
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("FolderPanel");
@@ -460,7 +479,6 @@ public class FolderPanel extends JPanel implements MyPanel {
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(1, 2, new Insets(5, 5, 5, 5), -1, -1));
         folderPanel.add(panel1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "路径", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         folderPathField = new JTextField();
         folderPathField.setEditable(false);
         folderPathField.setMargin(new Insets(2, 6, 2, 6));
@@ -495,20 +513,4 @@ public class FolderPanel extends JPanel implements MyPanel {
         return folderPanel;
     }
 
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
-    }
-
-    @Override
-    public JComponent getComponent(String project) {
-        return new FolderPanel(project).$$$getRootComponent$$$();
-    }
-
-    // FileEncodingDetector 类
-    private static class FileEncodingDetector {
-        public static String detectEncoding(File file) {
-            // 简单的编码检测，实际项目中可能需要更复杂的实现
-            return "UTF-8";
-        }
-    }
 }

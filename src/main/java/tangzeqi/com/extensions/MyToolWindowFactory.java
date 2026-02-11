@@ -11,6 +11,7 @@ import tangzeqi.com.ui.broser.BrowserPanel;
 import tangzeqi.com.ui.chat.ChatRoomPanel;
 import tangzeqi.com.ui.folder.FolderPanel;
 import tangzeqi.com.ui.mind.MindPanel;
+import tangzeqi.com.ui.monitor.MonitorPanel;
 import tangzeqi.com.ui.tools.ToolsPanel;
 
 public class MyToolWindowFactory implements ToolWindowFactory {
@@ -23,6 +24,7 @@ public class MyToolWindowFactory implements ToolWindowFactory {
         addContent(project,toolWindow,BrowserPanel.class,"浏览器");
         addContent(project,toolWindow,ToolsPanel.class,"工具栏");
         addContent(project,toolWindow,MindPanel.class,"记忆库");
+        addContent(project,toolWindow,MonitorPanel.class,"监控面板");
         // 设置工具窗口的初始大小
         toolWindow.setAutoHide(false);
     }
