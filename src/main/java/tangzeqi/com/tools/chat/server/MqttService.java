@@ -95,9 +95,11 @@ public class MqttService {
 
     public void shutDowm() {
         try {
-            client.unsubscribe(TOPIC);
-            client.disconnect();
-            client = null;
+            if (client != null) {
+                client.unsubscribe(TOPIC);
+                client.disconnect();
+                client = null;
+            }
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
@@ -105,7 +107,9 @@ public class MqttService {
 
     public void out() {
         try {
-            client.unsubscribe(TOPIC);
+            if (client != null) {
+                client.unsubscribe(TOPIC);
+            }
             MyProject.cache(project).mqttStatus(false);
         } catch (Throwable e) {
             throw new RuntimeException(e);

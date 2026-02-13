@@ -13,7 +13,14 @@ public class IDEListener implements ProjectManagerListener {
     public void projectClosing(@NotNull Project project) {
         // 使用 Slf4j 日志替代 System.out.println，避免编码问题
         log.info("Wchat is executing the ProjectManagerListener Listener listener : projectClosing");
-        MyProject.cache(project.getName()).shutDown();
+        try {
+            var chatService = MyProject.cache(project.getName());
+            if (chatService != null) {
+                chatService.shutDown();
+            }
+        } catch (Throwable e) {
+            log.error("Error shutting down chat service: {}", e.getMessage(), e);
+        }
         log.info("Wchat is executed the ProjectManagerListener Listener listener : projectClosing");
     }
 }

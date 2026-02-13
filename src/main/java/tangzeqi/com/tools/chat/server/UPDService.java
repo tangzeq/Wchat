@@ -34,12 +34,12 @@ public class UPDService {
      */
     private volatile DatagramSocket socket;
 
-    private final DatagramPacket packet = new DatagramPacket("".getBytes(), "".getBytes().length, InetAddress.getByName("255.255.255.255"), 0);
+    private volatile DatagramPacket packet;
 
 
     private volatile ConcurrentHashMap<String, UPDInetSocketAddress> addresses = new ConcurrentHashMap<>();
 
-    public UPDService(String project) throws UnknownHostException {
+    public UPDService(String project) {
         this.project = project;
     }
 
@@ -47,6 +47,7 @@ public class UPDService {
         try {
             socket = new DatagramSocket();
             socket.setBroadcast(true);
+            packet = new DatagramPacket(" ".getBytes(), " ".getBytes().length, InetAddress.getByName("255.255.255.255"), 0);
             scan();
         } catch (Throwable e) {
             throw new RuntimeException(e);
@@ -137,7 +138,9 @@ public class UPDService {
 
     public void shutDowm() {
         try {
-            socket.close();
+            if (socket != null) {
+                socket.close();
+            }
             doing = false;
             addresses.clear();
         } catch (Throwable e) {

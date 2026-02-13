@@ -7,6 +7,17 @@ plugins {
 group = 'tangzeqi.com'
 version = '1.0.6'
 
+// ===================== Java版本配置 =====================
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
+
 // ===================== 仓库配置 =====================
 repositories {
   // 1. 阿里云中央仓库（优先，国内最快）
