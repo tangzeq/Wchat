@@ -3,11 +3,15 @@ package tangzeqi.com.action;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.Inlay;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.editor.Document;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import tangzeqi.com.extensions.SynInLay;
@@ -27,12 +31,21 @@ public class SynergyAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent an) {
         Project project = an.getProject();
-        Editor editor = (Editor) an.getDataContext().getData("editor");
+        Editor editor = an.getData(CommonDataKeys.EDITOR);
         String path = null;
         try {
-            path = editor.getDocument().getUserData(Key.findKeyByName("FILE_KEY")).toString().replace("file://", "");
+            VirtualFile virtualFile = an.getData(CommonDataKeys.VIRTUAL_FILE);
+            if (virtualFile != null) {
+                path = virtualFile.getPath();
+            } else if (editor != null) {
+                Document document = editor.getDocument();
+                virtualFile = FileDocumentManager.getInstance().getFile(document);
+                if (virtualFile != null) {
+                    path = virtualFile.getPath();
+                }
+            }
         } catch (Throwable e) {
-            path = (String) an.getDataContext().getData("virtualFile").toString().replace("file://", "");
+            // 处理异常
         }
         if (editor == null) {
             Messages.showInfoMessage("未获取到有效的编辑器！", "协同编辑");

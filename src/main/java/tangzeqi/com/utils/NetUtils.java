@@ -267,6 +267,23 @@ public class NetUtils {
         }
     }
 
+    /**
+     * 格式化网速，自动转换为合适的单位
+     * @param bytesPerSecond 网速（字节/秒）
+     * @return 格式化后的网速字符串
+     */
+    public static String formatSpeed(Double bytesPerSecond) {
+        if (bytesPerSecond < 1024) {
+            return String.format("%.2f B/s", bytesPerSecond);
+        } else if (bytesPerSecond < 1024 * 1024) {
+            return String.format("%.2f KB/s", bytesPerSecond / 1024);
+        } else if (bytesPerSecond < 1024 * 1024 * 1024) {
+            return String.format("%.2f MB/s", bytesPerSecond / (1024 * 1024));
+        } else {
+            return String.format("%.2f GB/s", bytesPerSecond / (1024 * 1024 * 1024));
+        }
+    }
+
 
     public static void main(String[] args) {
         // 测试方法，使用Slf4j日志输出

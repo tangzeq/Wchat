@@ -92,7 +92,7 @@ dependencies {
 
 // ===================== 插件版本兼容（确保支持内置JCEF的IDE版本） =====================
 patchPluginXml {
-  sinceBuild = '201.6668.121' // 对应2023.3版本（内置JCEF稳定支持）
+  sinceBuild = '233.11799.241' // 对应2023.3版本（内置JCEF稳定支持）
   // 移除 untilBuild 属性，让插件兼容所有未来的 IDE 版本
 }
 
