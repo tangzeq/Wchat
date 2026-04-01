@@ -15,4 +15,5 @@ public class MyProject {
     public static void init(Project project) {
         cache.put(project.getName(), new ChatService(project));
     }
+    
 }

@@ -4,17 +4,22 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.ContentFactory;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import tangzeqi.com.project.MyProject;
 import tangzeqi.com.ui.MyPanel;
 import tangzeqi.com.ui.broser.BrowserPanel;
 import tangzeqi.com.ui.chat.ChatRoomPanel;
 import tangzeqi.com.ui.folder.FolderPanel;
+import tangzeqi.com.ui.memo.MemoPanel;
 import tangzeqi.com.ui.mind.MindPanel;
 import tangzeqi.com.ui.monitor.MonitorPanel;
 import tangzeqi.com.ui.tools.ToolsPanel;
 
+import javax.swing.*;
+
 public class MyToolWindowFactory implements ToolWindowFactory {
+    @SneakyThrows
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         MyProject.init(project);
@@ -25,6 +30,7 @@ public class MyToolWindowFactory implements ToolWindowFactory {
         addContent(project,toolWindow,ToolsPanel.class,"工具栏");
         addContent(project,toolWindow,MindPanel.class,"记忆库");
         addContent(project,toolWindow,MonitorPanel.class,"监控面板");
+        addContent(project,toolWindow, MemoPanel.class,"备忘录");
         // 设置工具窗口的初始大小
         toolWindow.setAutoHide(false);
     }

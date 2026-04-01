@@ -2,6 +2,7 @@ package tangzeqi.com.ui.broser;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import lombok.SneakyThrows;
 import tangzeqi.com.tools.broser.Broser;
 import tangzeqi.com.tools.broser.server.MyJCEF;
 import tangzeqi.com.ui.MyPanel;
@@ -21,6 +22,7 @@ public class BrowserPanel extends JPanel implements MyPanel {
     // 浏览器
     private Broser browser;
 
+    @SneakyThrows
     public BrowserPanel(String project) {
         this.project = project;
         initializeBrowser();

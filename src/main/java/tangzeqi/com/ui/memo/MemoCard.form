@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="tangzeqi.com.ui.memo.MemoCard">
+  <grid id="27dc6" binding="main" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="300" height="300"/>
+    </constraints>
+    <properties>
+      <background color="-10892294"/>
+      <maximumSize width="300" height="200"/>
+      <minimumSize width="300" height="200"/>
+      <opaque value="true"/>
+      <preferredSize width="300" height="200"/>
+    </properties>
+    <border type="empty">
+      <size top="1" left="5" bottom="5" right="1"/>
+    </border>
+    <children>
+      <component id="textArea" class="javax.swing.JTextArea" binding="textArea">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-10892294"/>
+          <editable value="false"/>
+          <foreground color="-4169513"/>
+          <lineWrap value="true"/>
+          <text value="预览效果"/>
+          <wrapStyleWord value="true"/>
+        </properties>
+      </component>
+      <component id="timeLabel" class="javax.swing.JLabel" binding="timeLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="2025-01-01 22:08:34"/>
+        </properties>
+      </component>
+      <grid id="buttons" binding="buttons" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="5" vgap="5">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-10892294"/>
+        </properties>
+        <border type="empty"/>
+        <children>
+          <component id="over" class="javax.swing.JButton" binding="over">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-14026143"/>
+              <opaque value="true"/>
+              <selected value="false"/>
+              <text value="完成"/>
+            </properties>
+          </component>
+          <component id="edit" class="javax.swing.JButton" binding="edit">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-330162"/>
+              <enabled value="true"/>
+              <hideActionText value="false"/>
+              <text value="编辑"/>
+            </properties>
+          </component>
+          <component id="delete" class="javax.swing.JButton" binding="delete">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-2671776"/>
+              <doubleBuffered value="false"/>
+              <enabled value="true"/>
+              <focusCycleRoot value="false"/>
+              <focusTraversalPolicyProvider value="false"/>
+              <horizontalAlignment value="0"/>
+              <horizontalTextPosition value="0"/>
+              <label value="删除"/>
+              <margin top="0" left="0" bottom="0" right="0"/>
+              <opaque value="true"/>
+              <requestFocusEnabled value="true"/>
+              <rolloverEnabled value="true"/>
+              <text value="删除"/>
+              <verifyInputWhenFocusTarget value="true"/>
+              <visible value="true"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>
