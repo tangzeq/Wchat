@@ -28,7 +28,9 @@ repositories {
   mavenCentral()
   // 4. Gradle官方仓库
   maven { url = uri('https://repo.gradle.org/gradle/libs-releases') }
-  // 5. IntelliJ平台仓库（内置JCEF依赖来源）
+  // 5. 清华镜像（能同步到更多旧包）
+  maven { url = uri('https://mirrors.tuna.tsinghua.edu.cn/maven/') }
+  // 6. IntelliJ平台仓库（内置JCEF依赖来源）
   intellijPlatform {
     defaultRepositories()
   }

@@ -31,7 +31,7 @@ public class MemoItem {
         this.repeatRule = repeatRule;
         this.completed = false;
     }
-    
+
     public MemoItem(String id, String content, String cardColor, String textColor, String reminderTime, String repeatRule, boolean completed) {
         this.id = id;
         this.content = content;
@@ -116,12 +116,29 @@ public class MemoItem {
     public void setNextReminderTime() {
         // TODO: 根据repeatRule计算下一次提醒时间
         Date date = sdf.parse(getReminderTime());
+        Date now = new Date();
+        date = DateUtils.setYears(date, now.getYear() + 1900);
         switch (getRepeatRule()) {
-            case "日" -> date = DateUtils.addDays(date,1);
-            case "月" -> date = DateUtils.addMonths(date,1);
-            case "年" -> date = DateUtils.addYears(date,1);
-            default -> date = DateUtils.addHours(date,1);
+            case "日" -> {
+                date = DateUtils.setMonths(date, now.getMonth());
+                date = DateUtils.setDays(date, now.getDate());
+                date = DateUtils.addDays(date, 1);
+            }
+            case "月" -> {
+                date = DateUtils.setMonths(date, now.getMonth());
+                date = DateUtils.addMonths(date, 1);
+            }
+            case "年" -> {
+                date = DateUtils.addYears(date, 1);
+            }
+            default -> {
+                date = DateUtils.setMonths(date, now.getMonth());
+                date = DateUtils.setDays(date, now.getDate());
+                date = DateUtils.setHours(date, now.getHours());
+                date = DateUtils.addHours(date, 1);
+            }
         }
         setReminderTime(sdf.format(date));
     }
+
 }
